@@ -9,7 +9,8 @@ import {
 import { usePokemonList } from "../hooks/usePokeQuery";
 import { useDex } from "../hooks/useDex";
 
-import PokemonDetailsModal from "./PokemonDetailsModal";
+import PokemonDetailsModal from "./modals/PokemonDetailsModal";
+import ReleaseManyModal from "./modals/ReleaseManyModal";
 import ExportButtons from "./ExportButtons";
 import FiltersBar from "./FiltersBar";
 import Pokedex from "./Pokedex";
@@ -24,7 +25,10 @@ export default function App() {
 
 function MainApp() {
   const [viewMode, setViewMode] = useState("grid"); // grid | table
+  // modal toggle logic
   const [selectedPokemon, setSelectedPokemon] = useState(null);
+  const [showReleaseMany, setShowReleaseMany] = useState(false);
+
   const [filters, setFilters] = useState({
     name: "",
     type: "",
@@ -148,6 +152,7 @@ function MainApp() {
         onChange={setFilters}
         viewMode={viewMode}
         onViewModeChange={handleChangeMode}
+        onOpenReleaseMany={() => setShowReleaseMany(true)}
       />
 
       {/* Routes */}
@@ -188,11 +193,16 @@ function MainApp() {
       {selectedPokemon && (
         <PokemonDetailsModal
           pokemon={selectedPokemon}
-          onCatch={handleCatch}
-          onRelease={handleRelease}
           onUpdateNote={dex.updateNote}
-          onOpen={setSelectedPokemon}
           onClose={() => setSelectedPokemon(null)}
+        />
+      )}
+      {/* Release Pokémon modal */}
+      {showReleaseMany && (
+        <ReleaseManyModal
+          dex={dex.dex}
+          onConfirm={dex.releaseMany}
+          onClose={() => setShowReleaseMany(false)}
         />
       )}
     </div>

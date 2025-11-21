@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { capitalize, TYPE_COLORS } from "../libs/helper";
-import { formatHeight, formatWeight } from "../libs/pokemonUnits";
+import { capitalize, TYPE_COLORS } from "../../libs/helper";
+import { formatHeight, formatWeight } from "../../libs/pokemonUnits";
 
 export default function PokemonDetailsModal({
   pokemon,
   onClose,
-  onCatch,
-  onRelease,
   onUpdateNote,
 }) {
   const [note, setNote] = useState(pokemon?.note || "");
@@ -15,19 +13,33 @@ export default function PokemonDetailsModal({
     setNote(pokemon.note || "");
   }, [pokemon]);
 
+  const [isVisible, setIsVisible] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  useEffect(() => {
+    // Allow one render cycle before showing
+    requestAnimationFrame(() => {
+      setIsVisible(true);
+    });
+  }, []);
+
+  const startClose = () => {
+    setIsClosing(true);
+    setTimeout(onClose, 200); // must be smaller than animation duration
+  };
+
   // Close on ESC key
   useEffect(() => {
-    const handleEsc = (e) => e.key === "Escape" && onClose();
+    const handleEsc = (e) => e.key === "Escape" && startClose();
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
+  }, [startClose]);
 
   const { data } = pokemon;
 
   const firstType = data?.types?.[0]?.type?.name || "normal";
   const typeColor = TYPE_COLORS[firstType] || "#AAA";
 
-  // Slightly darker end color for a nice vertical gradient
   const gradientEnd = `${typeColor}CC`; // adds opacity
 
   const sprite =
@@ -39,23 +51,63 @@ export default function PokemonDetailsModal({
   const title = capitalize(pokemon.name);
 
   const sharePokemon = () => {
-    const message = `Check out this Pokémon: ${title}!`;
+    if (!pokemon || !data) return;
+
+    const isCaught = Boolean(pokemon.caughtAt);
+    const caughtText = isCaught
+      ? `Caught on: ${new Date(pokemon.caughtAt).toLocaleString()}`
+      : "Not caught yet";
+
+    const types = data.types.map((t) => t.type.name).join(", ");
+    const height = formatHeight(data.height);
+    const weight = formatWeight(data.weight);
+    const totalStats = data.stats.reduce((s, v) => s + v.base_stat, 0);
+
+    const message = `
+${title} — #${pokemon.id}
+Type: ${types}
+Height: ${height}
+Weight: ${weight}
+Base Stat Total: ${totalStats}
+Status: ${caughtText}
+`.trim();
 
     if (navigator.share) {
-      navigator.share({ title, text: message });
+      navigator.share({
+        title: `${title} info`,
+        text: message,
+      });
     } else {
       navigator.clipboard.writeText(message);
-      alert("Share text copied to clipboard!");
+      alert("Pokémon info copied to clipboard!");
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div
+      className={`
+    fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50
+    transition-opacity duration-300
+    ${isClosing ? "opacity-0" : isVisible ? "opacity-100" : "opacity-0"}
+  `}
+      onClick={startClose}
+    >
       <div
-        className="border border-white/20 p-6 rounded-xl shadow-xl w-full max-w-md relative"
+        className={`
+    border border-white/20 p-6 rounded-xl shadow-xl w-full max-w-md relative
+    transform transition-all duration-300
+    ${
+      isClosing
+        ? "scale-95 opacity-0"
+        : isVisible
+        ? "scale-100 opacity-100"
+        : "scale-95 opacity-0"
+    }
+  `}
         style={{
           background: `linear-gradient(180deg, ${typeColor} 0%, ${gradientEnd} 10%)`,
         }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
@@ -63,7 +115,7 @@ export default function PokemonDetailsModal({
           style={{
             background: `linear-gradient(180deg, ${typeColor} 0%, ${gradientEnd} 100%)`,
           }}
-          onClick={onClose}
+          onClick={startClose}
         >
           ✕
         </button>
@@ -99,7 +151,7 @@ export default function PokemonDetailsModal({
 
           {/* Caught status */}
           {pokemon.caughtAt ? (
-            <p className="text-green-800 text-md">
+            <p className="text-black-800 text-md">
               Caught: {new Date(pokemon.caughtAt).toLocaleString()}
             </p>
           ) : (
@@ -146,29 +198,13 @@ export default function PokemonDetailsModal({
           />
         </div>
         {/* Actions */}
-        <div className="flex justify-between mt-4">
+        <div className="flex justify-end mt-4">
           <button
             className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded"
             onClick={sharePokemon}
           >
             Share
           </button>
-
-          {pokemon.caughtAt ? (
-            <button
-              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
-              onClick={() => onRelease(pokemon.name)}
-            >
-              Release
-            </button>
-          ) : (
-            <button
-              className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded"
-              onClick={() => onCatch(pokemon)}
-            >
-              Catch
-            </button>
-          )}
         </div>
       </div>
     </div>

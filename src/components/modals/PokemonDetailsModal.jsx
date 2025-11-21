@@ -173,7 +173,7 @@ Status: ${caughtText}
             ))}
 
             <div className="col-span-2 bg-white/10 border border-white/10 p-2 rounded flex justify-between">
-              <span className="font-semibold">Total</span>
+              <span className="font-semibold">BST</span>
               <span className="opacity-80">
                 {data.stats.reduce((sum, s) => sum + s.base_stat, 0)}
               </span>

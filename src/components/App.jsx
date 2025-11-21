@@ -9,12 +9,9 @@ import {
 import { usePokemonList } from "../hooks/usePokeQuery";
 import { useDex } from "../hooks/useDex";
 
-import PokemonGrid from "./PokemonGrid";
-import PokemonTable from "./PokemonTable";
 import PokemonDetailsModal from "./PokemonDetailsModal";
 import ExportButtons from "./ExportButtons";
 import FiltersBar from "./FiltersBar";
-import Pagination from "./Pagination";
 import Pokedex from "./Pokedex";
 
 export default function App() {
@@ -28,17 +25,11 @@ export default function App() {
 function MainApp() {
   const [viewMode, setViewMode] = useState("grid"); // grid | table
   const [selectedPokemon, setSelectedPokemon] = useState(null);
-  const [page, setPage] = useState(1);
-  const pageSize = 20;
   const [filters, setFilters] = useState({
     name: "",
     type: "",
     onlyCaught: false,
   });
-
-  useEffect(() => {
-    setPage(1);
-  }, [filters]);
 
   const { data: pokemonList = [], isLoading, error } = usePokemonList();
 
@@ -108,7 +99,6 @@ function MainApp() {
   };
 
   const handleChangeMode = (mode) => {
-    setPage(1);
     setViewMode(mode);
   };
 

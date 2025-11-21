@@ -6,7 +6,7 @@ async function fetchPokemonTypes() {
   const res = await fetch(`${BASE_URL}/type`);
   if (!res.ok) throw new Error("Failed to fetch Pokémon types");
   const json = await res.json();
-  return json.results;
+  return json.results.sort((a, b) => a.name.localeCompare(b.name)); // <-- sort alphabetically
 }
 
 async function fetchPokemonList(limit = 2000) {

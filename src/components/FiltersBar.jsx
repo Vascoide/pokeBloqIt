@@ -68,11 +68,11 @@ export default function FiltersBar({
 
       {/* Right side – view mode */}
       <div className="flex gap-2 justify-end">
-        {onPokedexRoute 0 && (
+        {onPokedexRoute && (
           <button
             onClick={onOpenReleaseMany}
             disabled={dex.length <= 1}
-            className="px-4 py-2 bg-red-600 text-white rounded shadow hover:bg-red-700"
+            className="px-4 py-2 bg-red-600 text-white rounded shadow hover:bg-red-700 disabled:opacity-40"
           >
             Release Multiple
           </button>

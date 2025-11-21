@@ -107,7 +107,7 @@ function MainApp() {
   };
 
   return (
-    <div className="p-6 w-full">
+    <div className="px-4 py-6 mx-auto max-w-6xl w-full">
       {/* Header */}
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">PokéBloqIt</h1>

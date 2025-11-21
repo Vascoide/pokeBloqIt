@@ -83,7 +83,7 @@ export default function PokemonTable({
 
   return (
     <div className="overflow-x-auto rounded-xl bg-white/5 p-2 border border-white/10">
-      <table className="w-full min-w-[600px]">
+      <table className="w-full table-fixed">
         <thead>
           <tr className="text-left text-sm text-white/80 border-b border-white/10">
             <SortableHeader
@@ -206,7 +206,9 @@ export default function PokemonTable({
       </table>
 
       {sorted.length === 0 && (
-        <p className="opacity-70 italic mt-4">No Pokémon found.</p>
+        <div className="w-full flex justify-center py-12 text-center text-gray-300">
+          No Pokémon match your filters.
+        </div>
       )}
     </div>
   );

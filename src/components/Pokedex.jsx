@@ -25,7 +25,7 @@ export default function Pokedex({
   if (isLoading) return <p>Loading Pokémon...</p>;
 
   return (
-    <>
+    <div className="w-full max-w-6xl mx-auto">
       {viewMode === "grid" ? (
         <PokemonGrid
           list={paginatedList}
@@ -50,6 +50,6 @@ export default function Pokedex({
         total={combinedList.length}
         onPageChange={setPage}
       />
-    </>
+    </div>
   );
 }

@@ -1,13 +1,18 @@
 import React from "react";
 import { usePokemonTypes } from "../hooks/usePokeQuery";
 import { capitalize } from "../libs/helper";
+import { useLocation } from "react-router-dom";
 
 export default function FiltersBar({
   filters,
   onChange,
   viewMode,
   onViewModeChange,
+  onOpenReleaseMany,
 }) {
+  const location = useLocation();
+  const onPokedexRoute = location.pathname === "/pokedex";
+
   const update = (key, value) => {
     onChange({ ...filters, [key]: value });
   };
@@ -49,7 +54,7 @@ export default function FiltersBar({
 
         {/* Reset */}
         <button
-          className="px-3 py-2 bg-red-500 hover:bg-red-600 rounded text-white text-sm h-fit"
+          className="px-3 py-2 bg-red-500 hover:bg-red-600 rounded text-white"
           onClick={() => onChange({ name: "", type: "", onlyCaught: false })}
         >
           Reset
@@ -58,6 +63,14 @@ export default function FiltersBar({
 
       {/* Right side – view mode */}
       <div className="flex gap-2 justify-end">
+        {onPokedexRoute && (
+          <button
+            onClick={onOpenReleaseMany}
+            className="px-4 py-2 bg-red-600 text-white rounded shadow hover:bg-red-700"
+          >
+            Release Multiple
+          </button>
+        )}
         <button
           className={`px-3 py-2 rounded text-sm border ${
             viewMode === "grid"

@@ -56,7 +56,7 @@ export default function ExportButtons({ pokedex }) {
       <button
         disabled={pokedex.length === 0}
         onClick={exportCSV}
-        className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded font-semibold"
+        className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded font-semibold disabled:opacity-40"
       >
         Export to CSV
       </button>

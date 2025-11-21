@@ -20,7 +20,7 @@ export default function Pokedex({
 
   useEffect(() => {
     setPage(1);
-  }, [filters]);
+  }, [filters, viewMode, combinedList]);
 
   if (isLoading) return <p>Loading Pokémon...</p>;
 

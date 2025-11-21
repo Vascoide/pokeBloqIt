@@ -4,6 +4,7 @@ import { capitalize } from "../libs/helper";
 import { useLocation } from "react-router-dom";
 
 export default function FiltersBar({
+  dex,
   filters,
   onChange,
   viewMode,
@@ -41,11 +42,15 @@ export default function FiltersBar({
           <select
             value={filters.type}
             onChange={(e) => update("type", e.target.value)}
-            className="px-3 py-2 rounded bg-black/20 border border-white/10"
+            className="px-3 py-2 rounded bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Types</option>
             {types?.map((t) => (
-              <option key={t.name} value={t.name}>
+              <option
+                key={t.name}
+                value={t.name}
+                className="bg-black text-white"
+              >
                 {capitalize(t.name)}
               </option>
             ))}
@@ -63,9 +68,10 @@ export default function FiltersBar({
 
       {/* Right side – view mode */}
       <div className="flex gap-2 justify-end">
-        {onPokedexRoute && (
+        {onPokedexRoute 0 && (
           <button
             onClick={onOpenReleaseMany}
+            disabled={dex.length <= 1}
             className="px-4 py-2 bg-red-600 text-white rounded shadow hover:bg-red-700"
           >
             Release Multiple

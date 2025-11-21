@@ -107,7 +107,7 @@ function MainApp() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 w-full">
       {/* Header */}
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">PokéBloqIt</h1>
@@ -148,6 +148,7 @@ function MainApp() {
       </nav>
       {/* Filters */}
       <FiltersBar
+        dex={dex.dex}
         filters={filters}
         onChange={setFilters}
         viewMode={viewMode}

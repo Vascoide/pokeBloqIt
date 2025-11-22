@@ -4,14 +4,25 @@ import "./index.css";
 import App from "./components/App.jsx";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { setupQueryPersistence } from "./queryClient";
 
-// Create a single QueryClient instance for the whole app
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 60 * 24,
+    },
+  },
+});
 
+// Enable offline persistence
+setupQueryPersistence(queryClient);
+
+// Register service worker (from Vite PWA plugin)
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
-    .register("/serviceWorker.js")
-    .then(() => console.log("SW registered"))
+    .register("/sw.js")
+    .then(() => console.log("Service Worker registered"))
     .catch(() => {});
 }
 

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { loadCachedImage } from "../libs/imageCache";
 
 export default function PokemonCard({ pokemon, onOpen, onCatch, onRelease }) {
   const { name, data, id, caughtAt } = pokemon;
@@ -8,6 +9,12 @@ export default function PokemonCard({ pokemon, onOpen, onCatch, onRelease }) {
     `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
       id || ""
     }.png`;
+
+  const [spriteURL, setSpriteURL] = useState(null);
+
+  useEffect(() => {
+    loadCachedImage(image).then(setSpriteURL);
+  }, [image]);
 
   const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
 
@@ -22,7 +29,7 @@ export default function PokemonCard({ pokemon, onOpen, onCatch, onRelease }) {
       className="cursor-pointer bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 flex flex-col items-center hover:bg-white/20 transition shadow"
     >
       <img
-        src={image}
+        src={spriteURL}
         alt={name}
         className="w-20 h-20 object-contain mb-3"
         loading="lazy"

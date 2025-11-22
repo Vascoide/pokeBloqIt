@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { capitalize, TYPE_COLORS } from "../../libs/helper";
 import { formatHeight, formatWeight } from "../../libs/pokemonUnits";
+import { loadCachedImage } from "../../libs/imageCache";
 
 export default function PokemonDetailsModal({
   pokemon,
@@ -47,6 +48,12 @@ export default function PokemonDetailsModal({
     `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
       pokemon.id || ""
     }.png`;
+
+  const [spriteURL, setSpriteURL] = useState(null);
+
+  useEffect(() => {
+    loadCachedImage(sprite).then(setSpriteURL);
+  }, [sprite]);
 
   const title = capitalize(pokemon.name);
 
@@ -123,7 +130,7 @@ Status: ${caughtText}
         <h2 className="text-2xl font-bold text-center mb-3">{title}</h2>
         <div className="flex flex-col items-center mb-4">
           <img
-            src={sprite}
+            src={spriteURL}
             alt={pokemon.name}
             className="w-32 h-32 object-contain mb-3"
           />

@@ -139,7 +139,7 @@ test("usePokemonDetails is disabled when name is empty", async () => {
 
   // It should never call fetch
   expect(global.fetch).not.toHaveBeenCalled();
-  expect(result.current.isLoading).toBe(true);
+  expect(result.current.isLoading).toBe(false);
   expect(result.current.data).toBeUndefined();
 });
 

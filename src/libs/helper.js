@@ -22,3 +22,12 @@ export const TYPE_COLORS = {
   steel: "#B7B7CE",
   fairy: "#D685AD",
 };
+
+export const STAT_COLORS = {
+  hp: "#69DC12",
+  attack: "#EFCC18",
+  defense: "#E86412",
+  "special-attack": "#14C3F1",
+  "special-defense": "#4A6ADF",
+  speed: "#D51DAD",
+};

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { capitalize, TYPE_COLORS } from "../../libs/helper";
+import { capitalize, TYPE_COLORS, STAT_COLORS } from "../../libs/helper";
 import { formatHeight, formatWeight } from "../../libs/pokemonUnits";
 import { loadCachedImage } from "../../libs/imageCache";
 
@@ -37,6 +37,7 @@ export default function PokemonDetailsModal({
   }, [startClose]);
 
   const { data } = pokemon;
+  console.log(data);
 
   const firstType = data?.types?.[0]?.type?.name || "normal";
   const typeColor = TYPE_COLORS[firstType] || "#AAA";
@@ -174,7 +175,7 @@ Status: ${caughtText}
             {data.stats?.map((s) => (
               <StatBar
                 key={s.stat.name}
-                label={formatStatName(s.stat.name)}
+                statName={s.stat.name}
                 value={s.base_stat}
               />
             ))}
@@ -227,33 +228,24 @@ function Stat({ label, value }) {
   );
 }
 
-function StatBar({ label, value }) {
+function StatBar({ statName, value }) {
   const maxStat = 255; // max possible base stat
   const percent = Math.min((value / maxStat) * 100, 100);
 
-  // Optional: color scale
-  const barColor =
-    value >= 120
-      ? "bg-pink-500"
-      : value >= 100
-      ? "bg-green-500"
-      : value >= 80
-      ? "bg-yellow-400"
-      : value >= 60
-      ? "bg-blue-400"
-      : "bg-gray-400";
+  // Use the color from STAT_COLORS
+  const barColor = STAT_COLORS[statName] || "#888"; // fallback if statName not found (shouldn't happen)
 
   return (
     <div className="flex flex-col gap-1 mb-2">
       <div className="flex justify-between text-xs">
-        <span className="font-semibold">{label}</span>
+        <span className="font-semibold">{formatStatName(statName)}</span>
         <span className="opacity-80">{value}</span>
       </div>
 
       <div className="h-3 w-full bg-white/10 rounded">
         <div
-          className={`h-full ${barColor} rounded`}
-          style={{ width: `${percent}%` }}
+          className={`h-full rounded`}
+          style={{ width: `${percent}%`, backgroundColor: barColor }}
         />
       </div>
     </div>

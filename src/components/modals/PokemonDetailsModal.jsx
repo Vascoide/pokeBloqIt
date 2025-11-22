@@ -37,7 +37,6 @@ export default function PokemonDetailsModal({
   }, [startClose]);
 
   const { data } = pokemon;
-  console.log(data);
 
   const firstType = data?.types?.[0]?.type?.name || "normal";
   const typeColor = TYPE_COLORS[firstType] || "#AAA";

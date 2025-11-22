@@ -2,13 +2,7 @@ import React, { useState, useMemo } from "react";
 import { capitalize, TYPE_COLORS } from "../libs/helper";
 import { formatHeight, formatWeight } from "../libs/pokemonUnits";
 
-export default function PokemonTable({
-  items,
-  onOpen,
-  onCatch,
-  onRelease,
-  filters,
-}) {
+export default function PokemonTable({ items, onOpen, onCatch, onRelease }) {
   const [sortBy, setSortBy] = useState("id");
   const [sortDir, setSortDir] = useState("asc");
 
@@ -43,29 +37,6 @@ export default function PokemonTable({
     }
   };
 
-  const filtered = useMemo(() => {
-    if (!Array.isArray(items)) return [];
-
-    return items.filter((pk) => {
-      // Filter by name (case-insensitive)
-      if (filters.name) {
-        if (!pk.name.toLowerCase().includes(filters.name.toLowerCase())) {
-          return false;
-        }
-      }
-
-      // Filter by type
-      if (filters.type) {
-        const hasType = pk?.data?.types?.some(
-          (t) => t.type.name.toLowerCase() === filters.type.toLowerCase()
-        );
-        if (!hasType) return false;
-      }
-
-      return true;
-    });
-  }, [items, filters]);
-
   const sorted = useMemo(() => {
     const compare = (a, b) => {
       const valA = extractValue(a, sortBy);
@@ -76,59 +47,72 @@ export default function PokemonTable({
       return 0;
     };
 
-    const safeList = filtered;
+    const safeList = items;
 
     return [...safeList].sort(compare);
-  }, [items, sortBy, sortDir, filters]);
+  }, [items, sortBy, sortDir]);
 
   return (
     <div className="overflow-x-auto rounded-xl bg-white/5 p-2 border border-white/10">
       <table className="w-full table-fixed">
         <thead>
           <tr className="text-left text-sm text-white/80 border-b border-white/10">
-            <SortableHeader
-              label="ID"
-              keyName="id"
-              sortBy={sortBy}
-              sortDir={sortDir}
-              onSort={toggleSort}
-            />
-            <SortableHeader
-              label="Name"
-              keyName="name"
-              sortBy={sortBy}
-              sortDir={sortDir}
-              onSort={toggleSort}
-            />
-            <SortableHeader
-              label="Type"
-              keyName="type"
-              sortBy={sortBy}
-              sortDir={sortDir}
-              onSort={toggleSort}
-            />
-            <SortableHeader
-              label="Height"
-              keyName="height"
-              sortBy={sortBy}
-              sortDir={sortDir}
-              onSort={toggleSort}
-            />
-            <SortableHeader
-              label="Weight"
-              keyName="weight"
-              sortBy={sortBy}
-              sortDir={sortDir}
-              onSort={toggleSort}
-            />
-            <SortableHeader
-              label="Caught"
-              keyName="caughtAt"
-              sortBy={sortBy}
-              sortDir={sortDir}
-              onSort={toggleSort}
-            />
-            <th className="py-2 px-3">Actions</th>
+            <th className="py-2 px-3 w-[80px]">
+              <SortableHeader
+                label="ID"
+                keyName="id"
+                sortBy={sortBy}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+            </th>
+            <th className="py-2 px-3 w-[180px]">
+              <SortableHeader
+                label="Name"
+                keyName="name"
+                sortBy={sortBy}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+            </th>
+            <th className="py-2 w-[180px]">
+              <SortableHeader
+                label="Type"
+                keyName="type"
+                sortBy={sortBy}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+            </th>
+            <th className="py-2 w-[180px]">
+              <SortableHeader
+                label="Height"
+                keyName="height"
+                sortBy={sortBy}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+            </th>
+
+            <th className="py-2 w-[180px]">
+              <SortableHeader
+                label="Weight"
+                keyName="weight"
+                sortBy={sortBy}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+            </th>
+            <th className="py-2 w-[120px]">
+              <SortableHeader
+                label="Caught"
+                keyName="caughtAt"
+                sortBy={sortBy}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+            </th>
+            <th className="py-2 px-3 w-[100px]">Actions</th>
           </tr>
         </thead>
 
@@ -146,7 +130,7 @@ export default function PokemonTable({
               >
                 <td className="py-2 px-3">{pk.id}</td>
                 <td className="py-2 px-3 font-medium">{capitalize(pk.name)}</td>
-                <td className="py-2 px-3 flex gap-1">
+                <td className="py-2 px-3 flex items-center gap-1">
                   {pk.data?.types?.map((t) => {
                     const typeName = t.type.name;
                     const color = TYPE_COLORS[typeName] || "#AAA";

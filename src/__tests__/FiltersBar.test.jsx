@@ -6,7 +6,7 @@ import FiltersBar from "../components/FiltersBar";
 test("renders FiltersBar correctly", () => {
   renderWithAppProviders(
     <FiltersBar
-      filters={{ name: "", type: "" }}
+      filters={{ name: "", types: [] }}
       onChange={() => {}}
       viewMode="grid"
       onViewModeChange={() => {}}

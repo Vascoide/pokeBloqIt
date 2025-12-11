@@ -31,7 +31,7 @@ function MainApp() {
 
   const [filters, setFilters] = useState({
     name: "",
-    type: "",
+    types: [],
     onlyCaught: false,
   });
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { usePokemonTypes } from "../hooks/usePokeQuery";
+import TypeFilter from "./TypeFilter";
 import { capitalize } from "../libs/helper";
 import { useLocation } from "react-router-dom";
 
@@ -37,30 +38,12 @@ export default function FiltersBar({
         </div>
 
         {/* Type filter */}
-        <div className="flex flex-col">
-          <label className="text-sm mb-1">Type</label>
-          <select
-            value={filters.type}
-            onChange={(e) => update("type", e.target.value)}
-            className="px-3 py-2 rounded bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Types</option>
-            {types?.map((t) => (
-              <option
-                key={t.name}
-                value={t.name}
-                className="bg-black text-white"
-              >
-                {capitalize(t.name)}
-              </option>
-            ))}
-          </select>
-        </div>
+        <TypeFilter filters={filters} update={update} types={types} />
 
         {/* Reset */}
         <button
           className="px-3 py-2 bg-red-500 hover:bg-red-600 rounded text-white"
-          onClick={() => onChange({ name: "", type: "", onlyCaught: false })}
+          onClick={() => onChange({ name: "", types: [], onlyCaught: false })}
         >
           Reset
         </button>

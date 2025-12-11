@@ -17,16 +17,20 @@ export default function Pokedex({
 
   // --- Filtering logic centralized here ---
   const applyFilters = (list, filters) => {
-    return list.filter((poke) => {
-      if (filters.name && !poke.name.includes(filters.name.toLowerCase())) {
+    return list.filter((pokemon) => {
+      if (filters.name && !pokemon.name.includes(filters.name.toLowerCase())) {
         return false;
       }
 
-      if (filters.type) {
-        const hasType = poke?.data?.types?.some(
-          (t) => t.type.name.toLowerCase() === filters.type.toLowerCase()
+      if (filters.types?.length) {
+        const pokemonTypes =
+          pokemon?.data?.types?.map((t) => t.type.name) || [];
+
+        const matchesAll = filters.types.some((fType) =>
+          pokemonTypes.includes(fType)
         );
-        if (!hasType) return false;
+
+        if (!matchesAll) return false;
       }
 
       return true;

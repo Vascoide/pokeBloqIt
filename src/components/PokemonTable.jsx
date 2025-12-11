@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { capitalize, TYPE_COLORS } from "../libs/helper";
+import { TYPE_COLORS } from "../libs/helper";
 import { formatHeight, formatWeight } from "../libs/pokemonUnits";
 
 export default function PokemonTable({ items, onOpen, onCatch, onRelease }) {
@@ -129,7 +129,7 @@ export default function PokemonTable({ items, onOpen, onCatch, onRelease }) {
                 }}
               >
                 <td className="py-2 px-3">{pk.id}</td>
-                <td className="py-2 px-3 font-medium">{capitalize(pk.name)}</td>
+                <td className="py-2 px-3 font-medium capitalize">{pk.name}</td>
                 <td className="py-2 px-3 flex items-center gap-1">
                   {pk.data?.types?.map((t) => {
                     const typeName = t.type.name;

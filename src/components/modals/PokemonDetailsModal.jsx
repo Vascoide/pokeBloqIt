@@ -237,7 +237,9 @@ function StatBar({ statName, value }) {
   return (
     <div className="flex flex-col gap-1 mb-2">
       <div className="flex justify-between text-xs">
-        <span className="font-semibold">{formatStatName(statName)}</span>
+        <span className="font-semibold capitalize">
+          {formatStatName(statName)}
+        </span>
         <span className="opacity-80">{value}</span>
       </div>
 
@@ -252,9 +254,5 @@ function StatBar({ statName, value }) {
 }
 
 function formatStatName(name) {
-  return name
-    .replace("-", " ")
-    .split(" ")
-    .map((w) => capitalize(w))
-    .join(" ");
+  return name.replace("-", " ").split(" ").join(" ");
 }

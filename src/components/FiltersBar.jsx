@@ -1,7 +1,6 @@
 import React from "react";
 import { usePokemonTypes } from "../hooks/usePokeQuery";
 import TypeFilter from "./TypeFilter";
-import { capitalize } from "../libs/helper";
 import { useLocation } from "react-router-dom";
 
 export default function FiltersBar({

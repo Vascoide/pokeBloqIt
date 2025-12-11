@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { capitalize } from "../../libs/helper";
 
 export default function ReleaseManyModal({ dex, onConfirm, onClose }) {
   const [isVisible, setIsVisible] = useState(false);
@@ -158,7 +157,7 @@ export default function ReleaseManyModal({ dex, onConfirm, onClose }) {
                   alt={pk.name}
                   className="w-16 h-16 mx-auto mb-2"
                 />
-                <p className="font-semibold">{capitalize(pk.name)}</p>
+                <p className="font-semibold capitalize">{pk.name}</p>
               </div>
             );
           })}

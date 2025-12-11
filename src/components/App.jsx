@@ -93,7 +93,7 @@ function MainApp() {
     if (!pk) return;
 
     // If detailed data isn't loaded, fetch before adding
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pk.name}`);
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pk.id}`);
     const full = await res.json();
     await dex.catchPokemon({ id: pk.id, name: pk.name, data: full });
   };

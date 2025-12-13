@@ -37,6 +37,8 @@ function MainApp() {
 
   const { data: pokemonList = [], isLoading, error } = usePokemonList();
 
+  console.log(pokemonList, "bbbb");
+
   // Pokédex management
   const dex = useDex();
 

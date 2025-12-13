@@ -46,12 +46,13 @@ export default function Pokedex({
     setPage(1);
   }, [filters, viewMode, combinedList]);
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <div className="w-full flex justify-center py-12 text-center text-gray-300">
         <p>Loading Pokémon...</p>
       </div>
     );
+  }
 
   return (
     <div className="w-full max-w-6xl mx-auto">

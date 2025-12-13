@@ -20,6 +20,8 @@ export default function FiltersBar({
 
   const { data: types = [], isLoading, error } = usePokemonTypes();
 
+  console.log(types, "aaaa");
+
   return (
     <div className="bg-white/10 border border-white/20 p-4 rounded-xl mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       {/* Left side – filters */}

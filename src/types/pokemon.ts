@@ -1,3 +1,4 @@
+import { PokemonStatName } from "../libs/helper";
 export interface PokemonType {
     name: string;
     url: string;
@@ -17,7 +18,7 @@ export interface PokemonStat {
   base_stat: number;
   effort: number;
   stat: {
-    name: string;
+    name: PokemonStatName;
     url: string;
   };
 }

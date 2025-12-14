@@ -3,3 +3,5 @@ export interface Filters {
   types: string[];
   onlyCaught?: boolean;
 }
+
+export type ViewMode = "grid" | "table";

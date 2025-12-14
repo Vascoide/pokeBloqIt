@@ -1,5 +1,5 @@
 import { useQuery, useQueries } from "@tanstack/react-query";
-import { PokemonType, PokemonListAPIItem, PokemonData } from "../types/pokemon";
+import { PokemonType, PokemonAPIListItem, PokemonData } from "../types/pokemon";
 
 const BASE_URL = "https://pokeapi.co/api/v2";
 
@@ -17,7 +17,7 @@ async function fetchPokemonTypes(): Promise<PokemonType[]> {
 
 async function fetchPokemonList(
   limit = 2000
-): Promise<PokemonListAPIItem[]> {
+): Promise<PokemonAPIListItem[]> {
   const res = await fetch(`${BASE_URL}/pokemon?limit=${limit}`);
   if (!res.ok) throw new Error("Failed to fetch Pokémon list");
 
@@ -34,7 +34,7 @@ async function fetchPokemonDetails(name: string): Promise<PokemonData> {
 
 
 export function usePokemonList() {
-  return useQuery<PokemonListAPIItem[]>({
+  return useQuery<PokemonAPIListItem[]>({
     queryKey: ["pokemon-list"],
     queryFn: () => fetchPokemonList(),
     staleTime: 1000 * 60 * 10,

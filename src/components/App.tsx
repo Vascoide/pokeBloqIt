@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,8 +12,14 @@ import { useDex } from "../hooks/useDex";
 import PokemonDetailsModal from "./modals/PokemonDetailsModal";
 import ReleaseManyModal from "./modals/ReleaseManyModal";
 import ExportButtons from "./ExportButtons";
-import FiltersBar from "./FiltersBar";
+import FiltersBar from "./filter/FiltersBar";
 import Pokedex from "./Pokedex";
+
+import type { Filters, ViewMode } from "../types/filters";
+import type {
+  PokemonListItem,
+  PokemonAPIListItem,
+} from "../types/pokemon";
 
 export default function App() {
   return (
@@ -24,33 +30,41 @@ export default function App() {
 }
 
 function MainApp() {
-  const [viewMode, setViewMode] = useState("grid"); // grid | table
-  // modal toggle logic
-  const [selectedPokemon, setSelectedPokemon] = useState(null);
-  const [showReleaseMany, setShowReleaseMany] = useState(false);
+  /* ---------------- View / modal state ---------------- */
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
-  const [filters, setFilters] = useState({
+  const [selectedPokemon, setSelectedPokemon] =
+    useState<PokemonListItem | null>(null);
+
+  const [showReleaseMany, setShowReleaseMany] =
+    useState<boolean>(false);
+
+  /* ---------------- Filters ---------------- */
+  const [filters, setFilters] = useState<Filters>({
     name: "",
     types: [],
     onlyCaught: false,
   });
 
-  const { data: pokemonList = [], isLoading, error } = usePokemonList();
+  /* ---------------- Data ---------------- */
+  const {
+    data: pokemonList = [],
+    isLoading,
+    error,
+  } = usePokemonList();
 
-  console.log(pokemonList, "bbbb");
-
-  // Pokédex management
   const dex = useDex();
 
-  function getIdFromUrl(url) {
-    const parts = url.split("/").filter(Boolean); // removes empty strings
-    return Number(parts[parts.length - 1]); // last segment is the ID
+  /* ---------------- Helpers ---------------- */
+  function getIdFromUrl(url: string): number {
+    const parts = url.split("/").filter(Boolean);
+    return Number(parts[parts.length - 1]);
   }
 
-  const combinedList = useMemo(() => {
-    const listWithData = pokemonList.map((item) => {
+  /* ---------------- Combine API + Dex ---------------- */
+  const combinedList: PokemonListItem[] = useMemo(() => {
+    return (pokemonList as PokemonAPIListItem[]).map((item) => {
       const id = getIdFromUrl(item.url);
-
       const entry = dex.dex.find((d) => d.name === item.name);
 
       return entry
@@ -63,27 +77,25 @@ function MainApp() {
             note: "",
           };
     });
-
-    return listWithData;
   }, [pokemonList, dex.dex]);
 
-  const handleOpen = async (pk) => {
-    if (!pk) return;
+  /* ---------------- Actions ---------------- */
+  const handleOpen = async (pokemon: PokemonListItem | null) => {
+    if (!pokemon) return;
 
-    // If Pokémon already has full data (caught)
-    if (pk.data) {
-      setSelectedPokemon(pk);
+    if (pokemon.data) {
+      setSelectedPokemon(pokemon);
       return;
     }
 
-    // If Pokémon NOT caught → fetch temporary details
     try {
-      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pk.id}`);
+      const res = await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${pokemon.id}`
+      );
       const full = await res.json();
 
-      // Do NOT save to dex — just attach temp data
       setSelectedPokemon({
-        ...pk,
+        ...pokemon,
         data: full,
       });
     } catch (err) {
@@ -91,32 +103,29 @@ function MainApp() {
     }
   };
 
-  const handleCatch = async (pk) => {
-    if (!pk) return;
-
-    // If detailed data isn't loaded, fetch before adding
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pk.id}`);
+  const handleCatch = async (pokemon: PokemonListItem) => {
+    const res = await fetch(
+      `https://pokeapi.co/api/v2/pokemon/${pokemon.id}`
+    );
     const full = await res.json();
-    await dex.catchPokemon({ id: pk.id, name: pk.name, data: full });
+    await dex.catchPokemon({
+      id: pokemon.id,
+      name: pokemon.name,
+      data: full,
+    });
   };
 
-  const handleRelease = async (name) => {
+  const handleRelease = async (name: string) => {
     await dex.releasePokemon(name);
   };
 
-  const handleChangeMode = (mode) => {
-    setViewMode(mode);
-  };
-
+  /* ---------------- Render ---------------- */
   return (
     <div className="px-4 py-6 mx-auto max-w-6xl w-full">
       {/* Header */}
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">PokéBloqIt</h1>
-
-        <div className="flex gap-3">
-          <ExportButtons pokedex={dex.dex} />
-        </div>
+        <ExportButtons pokedex={dex.dex} />
       </header>
 
       {/* Navigation */}
@@ -148,19 +157,19 @@ function MainApp() {
           My Pokédex ({dex.dex.length})
         </NavLink>
       </nav>
+
       {/* Filters */}
       <FiltersBar
         dex={dex.dex}
         filters={filters}
         onChange={setFilters}
         viewMode={viewMode}
-        onViewModeChange={handleChangeMode}
+        onViewModeChange={setViewMode}
         onOpenReleaseMany={() => setShowReleaseMany(true)}
       />
 
       {/* Routes */}
       <Routes>
-        {/* All Pokémon */}
         <Route
           path="/"
           element={
@@ -192,7 +201,7 @@ function MainApp() {
         />
       </Routes>
 
-      {/* Pokémon modal */}
+      {/* Modals */}
       {selectedPokemon && (
         <PokemonDetailsModal
           pokemon={selectedPokemon}
@@ -200,7 +209,7 @@ function MainApp() {
           onClose={() => setSelectedPokemon(null)}
         />
       )}
-      {/* Release Pokémon modal */}
+
       {showReleaseMany && (
         <ReleaseManyModal
           dex={dex.dex}

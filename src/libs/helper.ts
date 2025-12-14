@@ -1,4 +1,5 @@
-export function capitalize(str) {
+export function capitalize(str: string): string {
+  if (!str) return "";
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
@@ -21,7 +22,9 @@ export const TYPE_COLORS = {
   dark: "#705746",
   steel: "#B7B7CE",
   fairy: "#D685AD",
-};
+} as const;
+
+export type PokemonTypeName = keyof typeof TYPE_COLORS;
 
 export const STAT_COLORS = {
   hp: "#69DC12",
@@ -30,4 +33,14 @@ export const STAT_COLORS = {
   "special-attack": "#14C3F1",
   "special-defense": "#4A6ADF",
   speed: "#D51DAD",
-};
+} as const;
+
+export type PokemonStatName = keyof typeof STAT_COLORS;
+
+export function getTypeColor(type: PokemonTypeName): string {
+  return TYPE_COLORS[type] || "#AAA";
+}
+
+export function getStatColor(stat: PokemonStatName): string {
+  return STAT_COLORS[stat];
+}

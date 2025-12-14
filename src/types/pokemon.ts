@@ -8,7 +8,7 @@ export interface PokemonTypeSlot {
   type: PokemonType;
 }
 
-export interface PokemonListAPIItem {
+export interface PokemonAPIListItem {
     name: string;
     url: string;
 }

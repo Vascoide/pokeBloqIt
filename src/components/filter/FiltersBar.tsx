@@ -1,7 +1,18 @@
-import React from "react";
-import { usePokemonTypes } from "../hooks/usePokeQuery";
-import TypeFilter from "./TypeFilter";
 import { useLocation } from "react-router-dom";
+import { usePokemonTypes } from "../../hooks/usePokeQuery";
+import TypeFilter from "./TypeFilter";
+
+import type { Filters, ViewMode } from "../../types/filters";
+import type { PokemonListItem } from "../../types/pokemon";
+
+interface FiltersBarProps {
+  dex: PokemonListItem[];
+  filters: Filters;
+  onChange: (filters: Filters) => void;
+  viewMode: ViewMode;
+  onViewModeChange: (mode: ViewMode) => void;
+  onOpenReleaseMany: () => void;
+}
 
 export default function FiltersBar({
   dex,
@@ -10,23 +21,28 @@ export default function FiltersBar({
   viewMode,
   onViewModeChange,
   onOpenReleaseMany,
-}) {
+}: FiltersBarProps) {
   const location = useLocation();
   const onPokedexRoute = location.pathname === "/pokedex";
 
-  const update = (key, value) => {
+  const update = <K extends keyof Filters>(
+    key: K,
+    value: Filters[K]
+  ) => {
     onChange({ ...filters, [key]: value });
   };
 
-  const { data: types = [], isLoading, error } = usePokemonTypes();
-
-  console.log(types, "aaaa");
+  const {
+    data: types = [],
+    isLoading,
+    error,
+  } = usePokemonTypes();
 
   return (
     <div className="bg-white/10 border border-white/20 p-4 rounded-xl mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       {/* Left side – filters */}
       <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
-        {/* Search by name */}
+        {/* Search */}
         <div className="flex flex-col">
           <label className="text-sm mb-1">Search</label>
           <input
@@ -39,12 +55,22 @@ export default function FiltersBar({
         </div>
 
         {/* Type filter */}
-        <TypeFilter filters={filters} update={update} types={types} />
+        <TypeFilter
+          filters={filters}
+          update={update}
+          types={types}
+        />
 
         {/* Reset */}
         <button
           className="px-3 py-2 bg-red-500 hover:bg-red-600 rounded text-white"
-          onClick={() => onChange({ name: "", types: [], onlyCaught: false })}
+          onClick={() =>
+            onChange({
+              name: "",
+              types: [],
+              onlyCaught: false,
+            })
+          }
         >
           Reset
         </button>
@@ -61,6 +87,7 @@ export default function FiltersBar({
             Release Multiple
           </button>
         )}
+
         <button
           className={`px-3 py-2 rounded text-sm border ${
             viewMode === "grid"

@@ -1,20 +1,39 @@
-import Select from "react-select";
-import { capitalize } from "../libs/helper";
+import Select, { type MultiValue, type StylesConfig } from "react-select";
+import { capitalize } from "../../libs/helper";
+import type { Filters } from "../../types/filters";
+import type { PokemonType } from "../../types/pokemon";
 
-export default function TypeFilter({ filters, update, types }) {
-  const options = (types || []).map((t) => ({
+type Option = {
+  value: string;
+  label: string;
+};
+
+interface TypeFilterProps {
+  filters: Filters;
+  update: <K extends keyof Filters>(key: K, value: Filters[K]) => void;
+  types: PokemonType[];
+}
+
+export default function TypeFilter({
+  filters,
+  update,
+  types,
+}: TypeFilterProps) {
+  const options: Option[] = (types || []).map((t) => ({
     value: t.name,
     label: capitalize(t.name),
   }));
 
-  const customStyles = {
+  const customStyles: StylesConfig<Option, true> = {
     control: (base, state) => ({
       ...base,
       backgroundColor: "rgba(0,0,0,0.2)",
       borderColor: state.isFocused
         ? "rgba(59,130,246,1)"
         : "rgba(255,255,255,0.2)",
-      boxShadow: state.isFocused ? "0 0 0 2px rgba(59,130,246,0.5)" : "none",
+      boxShadow: state.isFocused
+        ? "0 0 0 2px rgba(59,130,246,0.5)"
+        : "none",
       "&:hover": {
         borderColor: "rgba(255,255,255,0.35)",
       },
@@ -39,7 +58,6 @@ export default function TypeFilter({ filters, update, types }) {
     multiValue: (base) => ({
       ...base,
       backgroundColor: "rgba(255,255,255,0.2)",
-      color: "white",
     }),
 
     multiValueLabel: (base) => ({
@@ -75,11 +93,11 @@ export default function TypeFilter({ filters, update, types }) {
   return (
     <div className="flex flex-col w-60">
       <label className="text-sm mb-1">Types</label>
-      <Select
+      <Select<Option, true>
         isMulti
         options={options}
-        value={options.filter((o) => filters.types?.includes(o.value))}
-        onChange={(selected) =>
+        value={options.filter((o) => filters.types.includes(o.value))}
+        onChange={(selected: MultiValue<Option>) =>
           update(
             "types",
             selected.map((s) => s.value)

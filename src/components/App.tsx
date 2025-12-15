@@ -5,6 +5,7 @@ import {
   Route,
   NavLink,
   useLocation,
+  useSearchParams,
 } from "react-router-dom";
 
 import { usePokemonList } from "../hooks/usePokeQuery";
@@ -18,6 +19,7 @@ import Pokedex from "./Pokedex";
 
 import type { Filters, ViewMode } from "../types/filters";
 import type { PokemonListItem, PokemonAPIListItem } from "../types/pokemon";
+import { PokemonTypeName } from "../libs/helper";
 
 export default function App() {
   return (
@@ -28,30 +30,54 @@ export default function App() {
 }
 
 function MainApp() {
-  /* ---------------- View / modal state ---------------- */
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
-
   const [selectedPokemon, setSelectedPokemon] =
     useState<PokemonListItem | null>(null);
 
   const [showReleaseMany, setShowReleaseMany] = useState<boolean>(false);
 
-  /* ---------------- Filters ---------------- */
-  const [filters, setFilters] = useState<Filters>({
-    name: "",
-    types: [],
-    onlyCaught: false,
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  /* ---------------- Pages ---------------- */
-  const [page, setPage] = useState<number>(1);
+  const page = Number(searchParams.get("page") ?? 1);
+
+  const filters: Filters = {
+    name: searchParams.get("name") ?? "",
+    types: (searchParams.get("types")?.split(",") ?? []) as PokemonTypeName[],
+    onlyCaught: searchParams.get("caught") === "true",
+  };
+
+  const viewMode: ViewMode =
+    searchParams.get("view") === "table" ? "table" : "grid";
+
+  const sort = searchParams.get("sort") ?? "id";
+
   const pageSize = 20;
 
   const location = useLocation();
 
-  useEffect(() => {
-    setPage(1);
-  }, [filters, viewMode, location.pathname]);
+  function updateParams(updates: Record<string, string | null>) {
+    const next = new URLSearchParams(searchParams);
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (!value) {
+        next.delete(key);
+      } else {
+        next.set(key, value);
+      }
+    });
+
+    setSearchParams(next);
+  }
+
+  const handlePageChange = (nextPage: number) => {
+    updateParams({ page: String(nextPage) });
+  };
+
+  const handleViewModeChange = (mode: ViewMode) => {
+    updateParams({
+      view: mode,
+      page: "1",
+    });
+  };
 
   /* ---------------- Data ---------------- */
   const { data, isLoading, error } = usePokemonList(page, pageSize);
@@ -166,9 +192,16 @@ function MainApp() {
       <FiltersBar
         dex={dex.dex}
         filters={filters}
-        onChange={setFilters}
+        onChange={(next) =>
+          updateParams({
+            name: next.name || null,
+            types: next.types.length ? next.types.join(",") : null,
+            caught: next.onlyCaught ? "true" : null,
+            page: "1", // reset page on filter change
+          })
+        }
         viewMode={viewMode}
-        onViewModeChange={setViewMode}
+        onViewModeChange={handleViewModeChange}
         onOpenReleaseMany={() => setShowReleaseMany(true)}
       />
 
@@ -183,7 +216,7 @@ function MainApp() {
               total={total}
               page={page}
               pageSize={pageSize}
-              onPageChange={setPage}
+              onPageChange={handlePageChange}
               viewMode={viewMode}
               onOpen={handleOpen}
               onCatch={handleCatch}
@@ -202,7 +235,7 @@ function MainApp() {
               total={dex.dex.length}
               page={page}
               pageSize={pageSize}
-              onPageChange={setPage}
+              onPageChange={handlePageChange}
               viewMode={viewMode}
               onOpen={handleOpen}
               onCatch={handleCatch}

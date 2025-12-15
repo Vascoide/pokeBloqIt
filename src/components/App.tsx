@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   NavLink,
+  useLocation,
 } from "react-router-dom";
 
 import { usePokemonList } from "../hooks/usePokeQuery";
@@ -16,10 +17,7 @@ import FiltersBar from "./filter/FiltersBar";
 import Pokedex from "./Pokedex";
 
 import type { Filters, ViewMode } from "../types/filters";
-import type {
-  PokemonListItem,
-  PokemonAPIListItem,
-} from "../types/pokemon";
+import type { PokemonListItem, PokemonAPIListItem } from "../types/pokemon";
 
 export default function App() {
   return (
@@ -36,8 +34,7 @@ function MainApp() {
   const [selectedPokemon, setSelectedPokemon] =
     useState<PokemonListItem | null>(null);
 
-  const [showReleaseMany, setShowReleaseMany] =
-    useState<boolean>(false);
+  const [showReleaseMany, setShowReleaseMany] = useState<boolean>(false);
 
   /* ---------------- Filters ---------------- */
   const [filters, setFilters] = useState<Filters>({
@@ -46,12 +43,21 @@ function MainApp() {
     onlyCaught: false,
   });
 
+  /* ---------------- Pages ---------------- */
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 20;
+
+  const location = useLocation();
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters, viewMode, location.pathname]);
+
   /* ---------------- Data ---------------- */
-  const {
-    data: pokemonList = [],
-    isLoading,
-    error,
-  } = usePokemonList();
+  const { data, isLoading, error } = usePokemonList(page, pageSize);
+
+  const pokemonList = data?.results ?? [];
+  const total = data?.count ?? 0;
 
   const dex = useDex();
 
@@ -104,9 +110,7 @@ function MainApp() {
   };
 
   const handleCatch = async (pokemon: PokemonListItem) => {
-    const res = await fetch(
-      `https://pokeapi.co/api/v2/pokemon/${pokemon.id}`
-    );
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon.id}`);
     const full = await res.json();
     await dex.catchPokemon({
       id: pokemon.id,
@@ -121,7 +125,7 @@ function MainApp() {
 
   /* ---------------- Render ---------------- */
   return (
-    <div className="px-4 py-6 mx-auto max-w-6xl w-full">
+    <div className="px-4 py-6 m-5 mx-auto max-w-6xl w-full">
       {/* Header */}
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">PokéBloqIt</h1>
@@ -175,7 +179,11 @@ function MainApp() {
           element={
             <Pokedex
               isLoading={isLoading}
-              combinedList={combinedList}
+              items={combinedList}
+              total={total}
+              page={page}
+              pageSize={pageSize}
+              onPageChange={setPage}
               viewMode={viewMode}
               onOpen={handleOpen}
               onCatch={handleCatch}
@@ -189,8 +197,12 @@ function MainApp() {
           path="/pokedex"
           element={
             <Pokedex
-              isLoading={isLoading}
-              combinedList={dex.dex}
+              isLoading={false}
+              items={dex.dex}
+              total={dex.dex.length}
+              page={page}
+              pageSize={pageSize}
+              onPageChange={setPage}
               viewMode={viewMode}
               onOpen={handleOpen}
               onCatch={handleCatch}

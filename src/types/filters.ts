@@ -1,6 +1,8 @@
+import { PokemonTypeName } from "../libs/helper";
+
 export interface Filters {
   name: string;
-  types: string[];
+  types: PokemonTypeName[];
   onlyCaught?: boolean;
 }
 

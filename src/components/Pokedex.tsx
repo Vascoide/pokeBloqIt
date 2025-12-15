@@ -1,15 +1,18 @@
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import PokemonGrid from "./PokemonGrid";
 import PokemonTable from "./PokemonTable";
 import Pagination from "./Pagination";
 
 import type { PokemonListItem } from "../types/pokemon";
-import type { Filters } from "../types/filters";
-import type { ViewMode } from "../types/filters";
+import type { Filters, ViewMode } from "../types/filters";
 
 interface PokedexProps {
   isLoading: boolean;
-  combinedList: PokemonListItem[];
+  items: PokemonListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
   viewMode: ViewMode;
   onOpen: (pokemon: PokemonListItem) => void;
   onCatch: (pokemon: PokemonListItem) => void;
@@ -19,20 +22,20 @@ interface PokedexProps {
 
 export default function Pokedex({
   isLoading,
-  combinedList,
+  items,
+  total,
+  page,
+  pageSize,
+  onPageChange,
   viewMode,
   onOpen,
   onCatch,
   onRelease,
   filters,
 }: PokedexProps) {
-  const [page, setPage] = useState<number>(1);
-  const pageSize = 20;
-
   /* ---------------- Filtering ---------------- */
   const filtered = useMemo(() => {
-    return combinedList.filter((pokemon) => {
-      // Name filter (case-insensitive)
+    return items.filter((pokemon) => {
       if (
         filters.name &&
         !pokemon.name.toLowerCase().includes(filters.name.toLowerCase())
@@ -40,10 +43,8 @@ export default function Pokedex({
         return false;
       }
 
-      // Type filter (multi-select)
       if (filters.types.length) {
-        const pokemonTypes =
-          pokemon.data?.types?.map((t) => t.type.name) ?? [];
+        const pokemonTypes = pokemon.data?.types?.map((t) => t.type.name) ?? [];
 
         const matchesAny = filters.types.some((type) =>
           pokemonTypes.includes(type)
@@ -52,18 +53,26 @@ export default function Pokedex({
         if (!matchesAny) return false;
       }
 
+      if (filters.onlyCaught && !pokemon.caughtAt) {
+        return false;
+      }
+
       return true;
     });
-  }, [combinedList, filters]);
+  }, [items, filters]);
 
   /* ---------------- Pagination ---------------- */
-  const start = (page - 1) * pageSize;
-  const paginatedList = filtered.slice(start, start + pageSize);
+  const isClientPaginated = items.length === total;
 
-  /* ---------------- Reset page on changes ---------------- */
-  useEffect(() => {
-    setPage(1);
-  }, [filters, viewMode, combinedList]);
+  const paginatedItems = useMemo(() => {
+    if (!isClientPaginated) {
+      // Server-side pagination already applied
+      return filtered;
+    }
+
+    const start = (page - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, isClientPaginated, page, pageSize]);
 
   /* ---------------- Loading ---------------- */
   if (isLoading) {
@@ -79,14 +88,14 @@ export default function Pokedex({
     <div className="w-full max-w-6xl mx-auto">
       {viewMode === "grid" ? (
         <PokemonGrid
-          items={paginatedList}
+          items={paginatedItems}
           onOpen={onOpen}
           onCatch={onCatch}
           onRelease={onRelease}
         />
       ) : (
         <PokemonTable
-          items={paginatedList}
+          items={paginatedItems}
           onOpen={onOpen}
           onCatch={onCatch}
           onRelease={onRelease}
@@ -96,8 +105,9 @@ export default function Pokedex({
       <Pagination
         page={page}
         pageSize={pageSize}
-        total={filtered.length}
-        onPageChange={setPage}
+        total={total}
+        onPageChange={onPageChange}
+        isLoading={isLoading}
       />
     </div>
   );

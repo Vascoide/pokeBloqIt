@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import type { PokemonListViewProps } from "../types/ui";
 import type { PokemonListItem } from "../types/pokemon";
 
-import { getTypeColor, PokemonTypeName } from "../libs/helper";
+import { getTypeColor } from "../libs/helper";
 import { formatHeight, formatWeight } from "../libs/pokemonUnits";
 
 type SortKey = "id" | "name" | "height" | "weight" | "type" | "caughtAt";
@@ -71,12 +71,36 @@ export default function PokemonTable({
       <table className="w-full table-fixed">
         <thead>
           <tr className="text-left text-sm text-white/80 border-b border-white/10">
-            <SortableHeader label="ID" keyName="id" {...{ sortBy, sortDir, onSort: toggleSort }} />
-            <SortableHeader label="Name" keyName="name" {...{ sortBy, sortDir, onSort: toggleSort }} />
-            <SortableHeader label="Type" keyName="type" {...{ sortBy, sortDir, onSort: toggleSort }} />
-            <SortableHeader label="Height" keyName="height" {...{ sortBy, sortDir, onSort: toggleSort }} />
-            <SortableHeader label="Weight" keyName="weight" {...{ sortBy, sortDir, onSort: toggleSort }} />
-            <SortableHeader label="Caught" keyName="caughtAt" {...{ sortBy, sortDir, onSort: toggleSort }} />
+            <SortableHeader
+              label="ID"
+              keyName="id"
+              {...{ sortBy, sortDir, onSort: toggleSort }}
+            />
+            <SortableHeader
+              label="Name"
+              keyName="name"
+              {...{ sortBy, sortDir, onSort: toggleSort }}
+            />
+            <SortableHeader
+              label="Type"
+              keyName="type"
+              {...{ sortBy, sortDir, onSort: toggleSort }}
+            />
+            <SortableHeader
+              label="Height"
+              keyName="height"
+              {...{ sortBy, sortDir, onSort: toggleSort }}
+            />
+            <SortableHeader
+              label="Weight"
+              keyName="weight"
+              {...{ sortBy, sortDir, onSort: toggleSort }}
+            />
+            <SortableHeader
+              label="Caught"
+              keyName="caughtAt"
+              {...{ sortBy, sortDir, onSort: toggleSort }}
+            />
             <th className="py-2 px-3 w-[100px]">Actions</th>
           </tr>
         </thead>
@@ -96,10 +120,12 @@ export default function PokemonTable({
                 }}
               >
                 <td className="py-2 px-3">{pokemon.id}</td>
-                <td className="py-2 px-3 capitalize font-medium">{pokemon.name}</td>
+                <td className="py-2 px-3 capitalize font-medium">
+                  {pokemon.name}
+                </td>
                 <td className="py-2 px-3 flex gap-1">
                   {pokemon.data?.types?.map((t) => {
-                    const typeName = t.type.name as PokemonTypeName;
+                    const typeName = t.type.name;
                     const color = getTypeColor(typeName);
 
                     return (
@@ -114,10 +140,14 @@ export default function PokemonTable({
                   }) ?? "-"}
                 </td>
                 <td className="py-2 px-3">
-                  {pokemon.data?.height ? formatHeight(pokemon.data.height) : "-"}
+                  {pokemon.data?.height
+                    ? formatHeight(pokemon.data.height)
+                    : "-"}
                 </td>
                 <td className="py-2 px-3">
-                  {pokemon.data?.weight ? formatWeight(pokemon.data.weight) : "-"}
+                  {pokemon.data?.weight
+                    ? formatWeight(pokemon.data.weight)
+                    : "-"}
                 </td>
                 <td className="py-2 px-3">
                   {isCaught ? (

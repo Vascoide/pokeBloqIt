@@ -1,39 +1,53 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import type { PokemonListItem } from "../../types/pokemon";
 
-export default function ReleaseManyModal({ dex, onConfirm, onClose }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
+interface ReleaseManyModalProps {
+  dex: PokemonListItem[];
+  onConfirm: (names: string[]) => void;
+  onClose: () => void;
+}
+
+export default function ReleaseManyModal({
+  dex,
+  onConfirm,
+  onClose,
+}: ReleaseManyModalProps) {
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [isClosing, setIsClosing] = useState<boolean>(false);
+
+  const [selected, setSelected] = useState<string[]>([]);
+  const [showConfirm, setShowConfirm] = useState<boolean>(false);
 
   useEffect(() => {
-    // Allow one render cycle before showing
     requestAnimationFrame(() => {
       setIsVisible(true);
     });
   }, []);
 
-  const [selected, setSelected] = useState([]);
-  const [showConfirm, setShowConfirm] = useState(false);
-
   const startClose = () => {
     setIsClosing(true);
-    setTimeout(onClose, 200); // must be smaller than animation duration
+    setTimeout(onClose, 200);
   };
 
-  // Close on ESC key
+  // Close on ESC
   useEffect(() => {
-    const handleEsc = (e) => e.key === "Escape" && startClose();
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") startClose();
+    };
+
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [startClose]);
+  }, []);
 
-  const toggle = (name) => {
+  const toggle = (name: string) => {
     setSelected((prev) =>
       prev.includes(name) ? prev.filter((p) => p !== name) : [...prev, name]
     );
   };
 
   const selectAll = () => {
-    if (showConfirm) return; // Disable select all during confirmation
+    if (showConfirm) return;
+
     if (selected.length === dex.length) {
       setSelected([]);
     } else {
@@ -43,7 +57,7 @@ export default function ReleaseManyModal({ dex, onConfirm, onClose }) {
 
   const handleReleaseClick = () => {
     if (selected.length === 0) return;
-    setShowConfirm(true); // Show confirmation prompt
+    setShowConfirm(true);
   };
 
   const confirmRelease = () => {
@@ -61,21 +75,21 @@ export default function ReleaseManyModal({ dex, onConfirm, onClose }) {
         fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50
         transition-opacity duration-300
         ${isClosing ? "opacity-0" : isVisible ? "opacity-100" : "opacity-0"}
-    `}
+      `}
       onClick={startClose}
     >
       <div
         className={`
-    bg-black/90 border border-white/20 p-6 rounded-xl w-full max-w-3xl relative
-    transform transition-all duration-300
-    ${
-      isClosing
-        ? "scale-95 opacity-0"
-        : isVisible
-        ? "scale-100 opacity-100"
-        : "scale-95 opacity-0"
-    }
-            `}
+          bg-black/90 border border-white/20 p-6 rounded-xl w-full max-w-3xl relative
+          transform transition-all duration-300
+          ${
+            isClosing
+              ? "scale-95 opacity-0"
+              : isVisible
+                ? "scale-100 opacity-100"
+                : "scale-95 opacity-0"
+          }
+        `}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close */}
@@ -90,7 +104,7 @@ export default function ReleaseManyModal({ dex, onConfirm, onClose }) {
           Release Multiple Pokémon
         </h2>
 
-        {/* Buttons */}
+        {/* Actions */}
         <div className="flex justify-between mb-4">
           <button
             onClick={selectAll}
@@ -102,12 +116,12 @@ export default function ReleaseManyModal({ dex, onConfirm, onClose }) {
           {!showConfirm ? (
             <button
               onClick={handleReleaseClick}
+              disabled={selected.length === 0}
               className={`px-4 py-2 rounded text-white ${
                 selected.length === 0
                   ? "bg-gray-500 cursor-not-allowed"
                   : "bg-red-600 hover:bg-red-700"
               }`}
-              disabled={selected.length === 0}
             >
               Release Selected ({selected.length})
             </button>
@@ -150,10 +164,7 @@ export default function ReleaseManyModal({ dex, onConfirm, onClose }) {
                 }`}
               >
                 <img
-                  src={
-                    pk.data?.sprites?.front_default ||
-                    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pk.id}.png`
-                  }
+                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pk.id}.png`}
                   alt={pk.name}
                   className="w-16 h-16 mx-auto mb-2"
                 />

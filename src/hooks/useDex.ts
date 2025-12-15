@@ -70,24 +70,22 @@ export function useDex() {
       data?: PokemonData | null;
     }) => {
       const db = await getDB();
-      const existing = (await db.get(
-        STORE_NAME,
-        name
-      )) as PokemonListItem | undefined;
+      const existing = (await db.get(STORE_NAME, name)) as
+        | PokemonListItem
+        | undefined;
 
-      const entry: PokemonListItem =
-        existing ?? {
-          id,
-          name,
-          caughtAt: Date.now(),
-          note: "",
-          data: {
-            height: data?.height ?? 0,
-            weight: data?.weight ?? 0,
-            types: data?.types ?? [],
-            stats: data?.stats ?? [],
-          },
-        };
+      const entry: PokemonListItem = existing ?? {
+        id,
+        name,
+        caughtAt: Date.now(),
+        note: "",
+        data: {
+          height: data?.height ?? 0,
+          weight: data?.weight ?? 0,
+          types: data?.types ?? [],
+          stats: data?.stats ?? [],
+        },
+      };
 
       await db.put(STORE_NAME, entry);
 
@@ -117,19 +115,16 @@ export function useDex() {
 
   const updateNote = useCallback(async (name: string, note: string) => {
     const db = await getDB();
-    const entry = (await db.get(
-      STORE_NAME,
-      name
-    )) as PokemonListItem | undefined;
+    const entry = (await db.get(STORE_NAME, name)) as
+      | PokemonListItem
+      | undefined;
 
     if (!entry) return;
 
     const updated: PokemonListItem = { ...entry, note };
     await db.put(STORE_NAME, updated);
 
-    setDex((prev) =>
-      prev.map((p) => (p.name === name ? updated : p))
-    );
+    setDex((prev) => prev.map((p) => (p.name === name ? updated : p)));
   }, []);
 
   /* ------------------------------------------------------------------ */
@@ -142,11 +137,9 @@ export function useDex() {
 
     caughtNames: dex.map((d) => d.name),
 
-    getEntry: (name: string) =>
-      dex.find((d) => d.name === name),
+    getEntry: (name: string) => dex.find((d) => d.name === name),
 
-    isCaught: (name: string) =>
-      dex.some((d) => d.name === name),
+    isCaught: (name: string) => dex.some((d) => d.name === name),
 
     // actions
     catchPokemon,

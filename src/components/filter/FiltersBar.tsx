@@ -25,18 +25,11 @@ export default function FiltersBar({
   const location = useLocation();
   const onPokedexRoute = location.pathname === "/pokedex";
 
-  const update = <K extends keyof Filters>(
-    key: K,
-    value: Filters[K]
-  ) => {
+  const update = <K extends keyof Filters>(key: K, value: Filters[K]) => {
     onChange({ ...filters, [key]: value });
   };
 
-  const {
-    data: types = [],
-    isLoading,
-    error,
-  } = usePokemonTypes();
+  const { data: types = [], isLoading, error } = usePokemonTypes();
 
   return (
     <div className="bg-white/10 border border-white/20 p-4 rounded-xl mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -55,11 +48,7 @@ export default function FiltersBar({
         </div>
 
         {/* Type filter */}
-        <TypeFilter
-          filters={filters}
-          update={update}
-          types={types}
-        />
+        <TypeFilter filters={filters} update={update} types={types} />
 
         {/* Reset */}
         <button

@@ -1,7 +1,7 @@
-import { PokemonStatName } from "../libs/helper";
+import { PokemonStatName, PokemonTypeName } from "../libs/helper";
 export interface PokemonType {
-    name: string;
-    url: string;
+  name: PokemonTypeName;
+  url: string;
 }
 
 export interface PokemonTypeSlot {
@@ -10,8 +10,8 @@ export interface PokemonTypeSlot {
 }
 
 export interface PokemonAPIListItem {
-    name: string;
-    url: string;
+  name: string;
+  url: string;
 }
 
 export interface PokemonStat {

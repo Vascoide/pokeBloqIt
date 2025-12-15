@@ -1,55 +1,61 @@
 import React, { useEffect, useState } from "react";
-import { capitalize, TYPE_COLORS, STAT_COLORS } from "../../libs/helper";
+import {
+  capitalize,
+  getTypeColor,
+  getStatColor,
+  PokemonTypeName,
+  PokemonStatName,
+} from "../../libs/helper";
 import { formatHeight, formatWeight } from "../../libs/pokemonUnits";
 import { loadCachedImage } from "../../libs/imageCache";
+import type { PokemonListItem } from "../../types/pokemon";
+
+interface PokemonDetailsModalProps {
+  pokemon: PokemonListItem;
+  onClose: () => void;
+  onUpdateNote: (name: string, note: string) => void;
+}
 
 export default function PokemonDetailsModal({
   pokemon,
   onClose,
   onUpdateNote,
-}) {
-  const [note, setNote] = useState(pokemon?.note || "");
+}: PokemonDetailsModalProps) {
+  const [note, setNote] = useState<string>(pokemon.note);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [isClosing, setIsClosing] = useState<boolean>(false);
+  const [spriteURL, setSpriteURL] = useState<string>();
 
   useEffect(() => {
     setNote(pokemon.note || "");
   }, [pokemon]);
 
-  const [isVisible, setIsVisible] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-
   useEffect(() => {
-    // Allow one render cycle before showing
-    requestAnimationFrame(() => {
-      setIsVisible(true);
-    });
+    requestAnimationFrame(() => setIsVisible(true));
   }, []);
 
   const startClose = () => {
     setIsClosing(true);
-    setTimeout(onClose, 200); // must be smaller than animation duration
+    setTimeout(onClose, 200);
   };
 
-  // Close on ESC key
   useEffect(() => {
-    const handleEsc = (e) => e.key === "Escape" && startClose();
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") startClose();
+    };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [startClose]);
+  }, []);
 
   const { data } = pokemon;
 
-  const firstType = data?.types?.[0]?.type?.name || "normal";
-  const typeColor = TYPE_COLORS[firstType] || "#AAA";
+  const firstType = (data?.types?.[0]?.type?.name ??
+    "normal") satisfies PokemonTypeName;
 
-  const gradientEnd = `${typeColor}CC`; // adds opacity
+  const typeColor = getTypeColor(firstType);
+  const gradientEnd = `${typeColor}CC`;
 
-  const sprite =
-    data?.sprites?.front_default ||
-    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-      pokemon.id || ""
-    }.png`;
-
-  const [spriteURL, setSpriteURL] = useState(null);
+  const sprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
 
   useEffect(() => {
     loadCachedImage(sprite).then(setSpriteURL);
@@ -58,11 +64,11 @@ export default function PokemonDetailsModal({
   const title = capitalize(pokemon.name);
 
   const sharePokemon = () => {
-    if (!pokemon || !data) return;
+    if (!data) return;
 
     const isCaught = Boolean(pokemon.caughtAt);
     const caughtText = isCaught
-      ? `Caught on: ${new Date(pokemon.caughtAt).toLocaleString()}`
+      ? `Caught on: ${new Date(pokemon.caughtAt!).toLocaleString()}`
       : "Not caught yet";
 
     const types = data.types.map((t) => t.type.name).join(", ");
@@ -80,10 +86,7 @@ Status: ${caughtText}
 `.trim();
 
     if (navigator.share) {
-      navigator.share({
-        title: `${title} info`,
-        text: message,
-      });
+      navigator.share({ title: `${title} info`, text: message });
     } else {
       navigator.clipboard.writeText(message);
       alert("Pokémon info copied to clipboard!");
@@ -107,8 +110,8 @@ Status: ${caughtText}
       isClosing
         ? "scale-95 opacity-0"
         : isVisible
-        ? "scale-100 opacity-100"
-        : "scale-95 opacity-0"
+          ? "scale-100 opacity-100"
+          : "scale-95 opacity-0"
     }
   `}
         style={{
@@ -139,7 +142,7 @@ Status: ${caughtText}
           <div className="flex gap-2 mb-2">
             {data?.types.map((t) => {
               const typeName = t.type.name;
-              const color = TYPE_COLORS[typeName] || "#AAA";
+              const color = getTypeColor(typeName);
 
               return (
                 <span
@@ -218,7 +221,12 @@ Status: ${caughtText}
   );
 }
 
-function Stat({ label, value }) {
+interface StatProps {
+  label: PokemonStatName | "Height" | "Weight";
+  value: string | number;
+}
+
+function Stat({ label, value }: StatProps) {
   return (
     <div className="bg-white/10 border border-white/10 p-2 rounded">
       <p className="text-xs opacity-70">{label}</p>
@@ -227,12 +235,16 @@ function Stat({ label, value }) {
   );
 }
 
-function StatBar({ statName, value }) {
-  const maxStat = 255; // max possible base stat
+interface StatBarProps {
+  statName: PokemonStatName;
+  value: number;
+}
+
+function StatBar({ statName, value }: StatBarProps) {
+  const maxStat = 255;
   const percent = Math.min((value / maxStat) * 100, 100);
 
-  // Use the color from STAT_COLORS
-  const barColor = STAT_COLORS[statName] || "#888"; // fallback if statName not found (shouldn't happen)
+  const barColor = getStatColor(statName);
 
   return (
     <div className="flex flex-col gap-1 mb-2">
@@ -245,7 +257,7 @@ function StatBar({ statName, value }) {
 
       <div className="h-3 w-full bg-white/10 rounded">
         <div
-          className={`h-full rounded`}
+          className="h-full rounded"
           style={{ width: `${percent}%`, backgroundColor: barColor }}
         />
       </div>
@@ -253,6 +265,6 @@ function StatBar({ statName, value }) {
   );
 }
 
-function formatStatName(name) {
-  return name.replace("-", " ").split(" ").join(" ");
+function formatStatName(name: string): string {
+  return name.replace("-", " ");
 }

@@ -1,16 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { loadCachedImage } from "../libs/imageCache";
+import type { PokemonListItem } from "../types/pokemon";
 
-export default function PokemonCard({ pokemon, onOpen, onCatch, onRelease }) {
+interface PokemonCardProps {
+  pokemon: PokemonListItem;
+  onOpen: () => void;
+  onCatch: () => void;
+  onRelease: () => void;
+}
+
+export default function PokemonCard({
+  pokemon,
+  onOpen,
+  onCatch,
+  onRelease,
+}: PokemonCardProps) {
   const { name, data, id, caughtAt } = pokemon;
 
-  const image =
-    data?.sprites?.front_default ||
-    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-      id || ""
-    }.png`;
+  const image = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
-  const [spriteURL, setSpriteURL] = useState(null);
+  const [spriteURL, setSpriteURL] = useState<string | null>(null);
 
   useEffect(() => {
     loadCachedImage(image).then(setSpriteURL);
@@ -22,14 +31,14 @@ export default function PokemonCard({ pokemon, onOpen, onCatch, onRelease }) {
     <div
       onClick={(e) => {
         // Avoid opening modal when clicking a button
-        if (e.target.tagName !== "BUTTON") {
+        if (e.target instanceof HTMLElement && e.target.tagName !== "BUTTON") {
           onOpen();
         }
       }}
       className="cursor-pointer bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 flex flex-col items-center hover:bg-white/20 transition shadow"
     >
       <img
-        src={spriteURL}
+        src={spriteURL ?? image}
         alt={name}
         className="w-20 h-20 object-contain mb-3"
         loading="lazy"

@@ -1,7 +1,8 @@
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { useQuery, useQueries, keepPreviousData } from "@tanstack/react-query";
 import { PokemonType, PokemonAPIListItem, PokemonData } from "../types/pokemon";
 
 const BASE_URL = "https://pokeapi.co/api/v2";
+const PAGE_SIZE = 20;
 
 async function fetchPokemonTypes(): Promise<PokemonType[]> {
   const res = await fetch(`${BASE_URL}/type`);
@@ -14,17 +15,27 @@ async function fetchPokemonTypes(): Promise<PokemonType[]> {
   );
 }
 
-
-async function fetchPokemonList(
-  limit = 2000
-): Promise<PokemonAPIListItem[]> {
-  const res = await fetch(`${BASE_URL}/pokemon?limit=${limit}`);
-  if (!res.ok) throw new Error("Failed to fetch Pokémon list");
-
-  const json = await res.json();
-  return json.results;
+export interface PokemonListResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: PokemonAPIListItem[];
 }
 
+export async function fetchPokemonListPage(
+  limit: number,
+  offset: number
+): Promise<PokemonListResponse> {
+  const res = await fetch(
+    `${BASE_URL}/pokemon?limit=${limit}&offset=${offset}`
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch Pokémon list");
+  }
+
+  return res.json();
+}
 
 async function fetchPokemonDetails(name: string): Promise<PokemonData> {
   const res = await fetch(`${BASE_URL}/pokemon/${name}`);
@@ -32,12 +43,12 @@ async function fetchPokemonDetails(name: string): Promise<PokemonData> {
   return await res.json();
 }
 
-
-export function usePokemonList() {
-  return useQuery<PokemonAPIListItem[]>({
-    queryKey: ["pokemon-list"],
-    queryFn: () => fetchPokemonList(),
-    staleTime: 1000 * 60 * 10,
+export function usePokemonList(page: number, pageSize: number = PAGE_SIZE) {
+  return useQuery({
+    queryKey: ["pokemon-list", page],
+    queryFn: () => fetchPokemonListPage(pageSize, (page - 1) * pageSize),
+    placeholderData: keepPreviousData, // 🔑 smooth pagination
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -68,4 +79,3 @@ export function useManyPokemonDetails(names: string[] = []) {
     })),
   });
 }
-

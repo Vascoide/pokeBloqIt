@@ -1,10 +1,10 @@
 import Select, { type MultiValue, type StylesConfig } from "react-select";
-import { capitalize } from "../../libs/helper";
+import { capitalize, PokemonTypeName } from "../../libs/helper";
 import type { Filters } from "../../types/filters";
 import type { PokemonType } from "../../types/pokemon";
 
 type Option = {
-  value: string;
+  value: PokemonTypeName;
   label: string;
 };
 
@@ -31,9 +31,7 @@ export default function TypeFilter({
       borderColor: state.isFocused
         ? "rgba(59,130,246,1)"
         : "rgba(255,255,255,0.2)",
-      boxShadow: state.isFocused
-        ? "0 0 0 2px rgba(59,130,246,0.5)"
-        : "none",
+      boxShadow: state.isFocused ? "0 0 0 2px rgba(59,130,246,0.5)" : "none",
       "&:hover": {
         borderColor: "rgba(255,255,255,0.35)",
       },

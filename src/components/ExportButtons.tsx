@@ -1,13 +1,35 @@
 import React from "react";
 import { capitalize } from "../libs/helper";
+import type { PokemonListItem } from "../types/pokemon";
 
-export default function ExportButtons({ pokedex }) {
+interface ExportButtonsProps {
+  pokedex: PokemonListItem[];
+}
+
+interface ExportRow {
+  id: number;
+  name: string;
+  height: number | "";
+  weight: number | "";
+  hp: number | "";
+  attack: number | "";
+  defense: number | "";
+  specialAttack: number | "";
+  specialDefense: number | "";
+  speed: number | "";
+  types: string;
+  caughtAt: string;
+  note: string;
+}
+
+export default function ExportButtons({ pokedex }: ExportButtonsProps) {
   const exportCSV = () => {
-    const rows = pokedex
-      .filter((pk) => pk.caughtAt) // Only caught Pokémon
+    const rows: ExportRow[] = pokedex
+      .filter((pk) => pk.caughtAt)
       .map((pk) => {
-        const stats = pk.data?.stats || [];
-        const get = (name) =>
+        const stats = pk.data?.stats ?? [];
+
+        const getStat = (name: string): number | "" =>
           stats.find((s) => s.stat.name === name)?.base_stat ?? "";
 
         return {
@@ -15,15 +37,15 @@ export default function ExportButtons({ pokedex }) {
           name: capitalize(pk.name),
           height: pk.data?.height ?? "",
           weight: pk.data?.weight ?? "",
-          hp: get("hp"),
-          attack: get("attack"),
-          defense: get("defense"),
-          specialAttack: get("special-attack"),
-          specialDefense: get("special-defense"),
-          speed: get("speed"),
+          hp: getStat("hp"),
+          attack: getStat("attack"),
+          defense: getStat("defense"),
+          specialAttack: getStat("special-attack"),
+          specialDefense: getStat("special-defense"),
+          speed: getStat("speed"),
           types: pk.data?.types?.map((t) => t.type.name).join(", ") ?? "",
           caughtAt: pk.caughtAt ? new Date(pk.caughtAt).toISOString() : "",
-          note: pk.note || "",
+          note: pk.note ?? "",
         };
       });
 
@@ -32,11 +54,14 @@ export default function ExportButtons({ pokedex }) {
       return;
     }
 
-    const header = Object.keys(rows[0]);
+    const headers = Object.keys(rows[0]) as (keyof ExportRow)[];
+
     const csv = [
-      header.join(","),
+      headers.join(","),
       ...rows.map((row) =>
-        header.map((h) => `"${String(row[h]).replace(/"/g, '""')}"`).join(",")
+        headers
+          .map((key) => `"${String(row[key]).replace(/"/g, '""')}"`)
+          .join(",")
       ),
     ].join("\n");
 

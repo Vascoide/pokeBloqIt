@@ -1,9 +1,9 @@
 // In production you'd use Workbox build-time to precache assets.
 // Minimal runtime caching:
-self.addEventListener("install", (evt) => {
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
-self.addEventListener("activate", (evt) => {
+self.addEventListener("activate", () => {
   clients.claim();
 });
 self.addEventListener("fetch", (evt) => {
@@ -18,7 +18,7 @@ self.addEventListener("fetch", (evt) => {
           const res = await fetch(evt.request);
           if (res && res.ok) cache.put(evt.request, res.clone());
           return res;
-        } catch (err) {
+        } catch (errs) {
           return cached || new Response(null, { status: 503 });
         }
       })

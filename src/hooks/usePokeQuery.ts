@@ -37,6 +37,12 @@ export async function fetchPokemonListPage(
   return res.json();
 }
 
+export async function fetchPokemon(id: number) {
+  const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+  if (!res.ok) throw new Error("Failed to fetch Pokémon");
+  return res.json();
+}
+
 async function fetchPokemonDetails(name: string): Promise<PokemonData> {
   const res = await fetch(`${BASE_URL}/pokemon/${name}`);
   if (!res.ok) throw new Error("Failed to fetch details for " + name);
@@ -60,12 +66,13 @@ export function usePokemonTypes() {
   });
 }
 
-export function usePokemonDetails(name?: string) {
+export function usePokemon(id: number | null) {
   return useQuery<PokemonData>({
-    queryKey: ["pokemon-details", name],
-    queryFn: () => fetchPokemonDetails(name!),
-    enabled: !!name,
-    staleTime: 1000 * 60 * 30,
+    queryKey: ["pokemon", id],
+    queryFn: () => fetchPokemon(id!),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+    gcTime: 1000 * 60 * 60, // 1 hour
   });
 }
 

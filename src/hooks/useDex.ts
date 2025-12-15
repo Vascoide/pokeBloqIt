@@ -91,7 +91,7 @@ export function useDex() {
 
       setDex((prev) => {
         const filtered = prev.filter((p) => p.name !== name);
-        return [...filtered, entry];
+        return [...filtered, entry].sort((a, b) => a.id - b.id);
       });
     },
     []

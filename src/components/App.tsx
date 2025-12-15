@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,8 +7,8 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router-dom";
-
-import { usePokemonList } from "../hooks/usePokeQuery";
+import { queueOfflineAction } from "../libs/offlineQueue";
+import { fetchPokemon, usePokemonList } from "../hooks/usePokeQuery";
 import { useDex } from "../hooks/useDex";
 
 import PokemonDetailsModal from "./modals/PokemonDetailsModal";
@@ -20,6 +20,8 @@ import Pokedex from "./Pokedex";
 import type { Filters, ViewMode } from "../types/filters";
 import type { PokemonListItem, PokemonAPIListItem } from "../types/pokemon";
 import { PokemonTypeName } from "../libs/helper";
+import { useOfflineSync } from "../hooks/useOfflineSync";
+import { queryClient } from "../queryClient";
 
 export default function App() {
   return (
@@ -87,6 +89,8 @@ function MainApp() {
 
   const dex = useDex();
 
+  useOfflineSync(dex);
+
   /* ---------------- Helpers ---------------- */
   function getIdFromUrl(url: string): number {
     const parts = url.split("/").filter(Boolean);
@@ -136,16 +140,52 @@ function MainApp() {
   };
 
   const handleCatch = async (pokemon: PokemonListItem) => {
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon.id}`);
-    const full = await res.json();
+    const data = await queryClient.fetchQuery({
+      queryKey: ["pokemon", pokemon.id],
+      queryFn: () => fetchPokemon(pokemon.id),
+    });
+
+    if (!navigator.onLine) {
+      // 1️⃣ Queue the action
+      await queueOfflineAction({
+        type: "CATCH",
+        pokemonId: pokemon.id,
+        pokemonName: pokemon.name,
+        timestamp: Date.now(),
+      });
+
+      // 2️⃣ Optimistically mark as caught (UX win)
+      await dex.catchPokemon({
+        id: pokemon.id,
+        name: pokemon.name,
+      });
+
+      return;
+    }
+
+    // Online → normal behavior
     await dex.catchPokemon({
       id: pokemon.id,
       name: pokemon.name,
-      data: full,
+      data,
     });
   };
 
   const handleRelease = async (name: string) => {
+    if (!navigator.onLine) {
+      // 1️⃣ Queue the action
+      await queueOfflineAction({
+        type: "RELEASE",
+        pokemonName: name,
+        timestamp: Date.now(),
+      });
+
+      // 2️⃣ Optimistically mark as caught (UX win)
+      await dex.releasePokemon(name);
+
+      return;
+    }
+
     await dex.releasePokemon(name);
   };
 
@@ -161,7 +201,14 @@ function MainApp() {
       {/* Navigation */}
       <nav className="flex gap-3 mb-6 text-lg">
         <NavLink
-          to="/"
+          to={{
+            pathname: "/",
+            search: (() => {
+              const next = new URLSearchParams(location.search);
+              next.delete("page");
+              return next.toString();
+            })(),
+          }}
           end
           className={({ isActive }) =>
             `px-4 py-2 rounded-full border transition-all ${
@@ -175,7 +222,14 @@ function MainApp() {
         </NavLink>
 
         <NavLink
-          to="/pokedex"
+          to={{
+            pathname: "/pokedex",
+            search: (() => {
+              const next = new URLSearchParams(location.search);
+              next.delete("page");
+              return next.toString();
+            })(),
+          }}
           className={({ isActive }) =>
             `px-4 py-2 rounded-full border transition-all ${
               isActive

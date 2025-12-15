@@ -8,6 +8,7 @@ import {
 } from "../../libs/helper";
 import { formatHeight, formatWeight } from "../../libs/pokemonUnits";
 import { loadCachedImage } from "../../libs/imageCache";
+import { usePokemon } from "../../hooks/usePokeQuery";
 import type { PokemonListItem } from "../../types/pokemon";
 
 interface PokemonDetailsModalProps {
@@ -25,6 +26,9 @@ export default function PokemonDetailsModal({
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isClosing, setIsClosing] = useState<boolean>(false);
   const [spriteURL, setSpriteURL] = useState<string>();
+
+  /* ---------------- React Query Pokémon data ---------------- */
+  const { data, isLoading, isError } = usePokemon(pokemon.id);
 
   useEffect(() => {
     setNote(pokemon.note || "");
@@ -47,8 +51,6 @@ export default function PokemonDetailsModal({
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
 
-  const { data } = pokemon;
-
   const firstType = (data?.types?.[0]?.type?.name ??
     "normal") satisfies PokemonTypeName;
 
@@ -60,6 +62,27 @@ export default function PokemonDetailsModal({
   useEffect(() => {
     loadCachedImage(sprite).then(setSpriteURL);
   }, [sprite]);
+
+  /* ---------------- Loading / error states ---------------- */
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+        <div className="bg-black/80 p-6 rounded-xl text-white">
+          Loading Pokémon details…
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+        <div className="bg-red-900/80 p-6 rounded-xl text-white">
+          Failed to load Pokémon data
+        </div>
+      </div>
+    );
+  }
 
   const title = capitalize(pokemon.name);
 

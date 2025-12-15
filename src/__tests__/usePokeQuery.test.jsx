@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   usePokemonTypes,
   usePokemonList,
-  usePokemonDetails,
   useManyPokemonDetails,
 } from "../hooks/usePokeQuery";
 
@@ -106,54 +105,6 @@ test("usePokemonList handles API failures", async () => {
     expect(result.current.error).toBeTruthy();
     expect(result.current.error.message).toContain(
       "Failed to fetch Pokémon list"
-    );
-  });
-});
-
-//
-// ─────────────────────────────────────────────
-//   TEST usePokemonDetails(name)
-// ─────────────────────────────────────────────
-//
-test("usePokemonDetails returns details for a pokemon", async () => {
-  const mockDetails = { name: "pikachu", id: 25 };
-
-  global.fetch.mockResolvedValueOnce({
-    ok: true,
-    json: async () => mockDetails,
-  });
-
-  const { result } = renderHook(() => usePokemonDetails("pikachu"), {
-    wrapper: createWrapper(),
-  });
-
-  await waitFor(() => {
-    expect(result.current.data).toEqual(mockDetails);
-  });
-});
-
-test("usePokemonDetails is disabled when name is empty", async () => {
-  const { result } = renderHook(() => usePokemonDetails(""), {
-    wrapper: createWrapper(),
-  });
-
-  // It should never call fetch
-  expect(global.fetch).not.toHaveBeenCalled();
-  expect(result.current.isLoading).toBe(false);
-  expect(result.current.data).toBeUndefined();
-});
-
-test("usePokemonDetails handles errors", async () => {
-  global.fetch.mockResolvedValueOnce({ ok: false });
-
-  const { result } = renderHook(() => usePokemonDetails("pikaxu"), {
-    wrapper: createWrapper(),
-  });
-
-  await waitFor(() => {
-    expect(result.current.error).toBeTruthy();
-    expect(result.current.error.message).toContain(
-      "Failed to fetch details for pikaxu"
     );
   });
 });

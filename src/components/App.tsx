@@ -8,7 +8,11 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { queueOfflineAction } from "../libs/offlineQueue";
-import { fetchPokemon, usePokemonList } from "../hooks/usePokeQuery";
+import {
+  fetchPokemon,
+  usePokemon,
+  usePokemonList,
+} from "../hooks/usePokeQuery";
 import { useDex } from "../hooks/useDex";
 
 import PokemonDetailsModal from "./modals/PokemonDetailsModal";
@@ -34,6 +38,12 @@ export default function App() {
 function MainApp() {
   const [selectedPokemon, setSelectedPokemon] =
     useState<PokemonListItem | null>(null);
+
+  const {
+    data: pokemonData,
+    isLoading: isPokemonLoading,
+    isError,
+  } = usePokemon(selectedPokemon?.id ?? null);
 
   const [showReleaseMany, setShowReleaseMany] = useState<boolean>(false);
 
@@ -118,25 +128,7 @@ function MainApp() {
   /* ---------------- Actions ---------------- */
   const handleOpen = async (pokemon: PokemonListItem | null) => {
     if (!pokemon) return;
-
-    if (pokemon.data) {
-      setSelectedPokemon(pokemon);
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `https://pokeapi.co/api/v2/pokemon/${pokemon.id}`
-      );
-      const full = await res.json();
-
-      setSelectedPokemon({
-        ...pokemon,
-        data: full,
-      });
-    } catch (err) {
-      console.error("Failed to load detailed pokemon data:", err);
-    }
+    setSelectedPokemon(pokemon);
   };
 
   const handleCatch = async (pokemon: PokemonListItem) => {
@@ -303,7 +295,12 @@ function MainApp() {
       {/* Modals */}
       {selectedPokemon && (
         <PokemonDetailsModal
-          pokemon={selectedPokemon}
+          pokemon={{
+            ...selectedPokemon,
+            data: selectedPokemon.data ?? pokemonData ?? null,
+          }}
+          isLoading={isPokemonLoading}
+          isError={isError}
           onUpdateNote={dex.updateNote}
           onClose={() => setSelectedPokemon(null)}
         />

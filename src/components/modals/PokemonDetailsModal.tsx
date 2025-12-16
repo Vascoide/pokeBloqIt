@@ -8,19 +8,22 @@ import {
 } from "../../libs/helper";
 import { formatHeight, formatWeight } from "../../libs/pokemonUnits";
 import { loadCachedImage } from "../../libs/imageCache";
-import { usePokemon } from "../../hooks/usePokeQuery";
 import type { PokemonListItem } from "../../types/pokemon";
 
 interface PokemonDetailsModalProps {
   pokemon: PokemonListItem;
-  onClose: () => void;
+  isLoading: boolean;
+  isError: boolean;
   onUpdateNote: (name: string, note: string) => void;
+  onClose: () => void;
 }
 
 export default function PokemonDetailsModal({
   pokemon,
-  onClose,
+  isLoading,
+  isError,
   onUpdateNote,
+  onClose,
 }: PokemonDetailsModalProps) {
   const [note, setNote] = useState<string>(pokemon.note);
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -28,7 +31,8 @@ export default function PokemonDetailsModal({
   const [spriteURL, setSpriteURL] = useState<string>();
 
   /* ---------------- React Query Pokémon data ---------------- */
-  const { data, isLoading, isError } = usePokemon(pokemon.id);
+
+  const { data } = pokemon;
 
   useEffect(() => {
     setNote(pokemon.note || "");

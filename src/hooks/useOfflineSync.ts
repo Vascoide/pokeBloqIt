@@ -4,6 +4,7 @@ import { useDex } from "./useDex";
 import type { OfflineAction } from "../types/offline";
 import { queryClient } from "../queryClient";
 import { fetchPokemon } from "./usePokeQuery";
+import { savePokemonData } from "../libs/pokemonData";
 
 export function useOfflineSync(dex: ReturnType<typeof useDex>) {
   useEffect(() => {
@@ -17,6 +18,8 @@ export function useOfflineSync(dex: ReturnType<typeof useDex>) {
               queryKey: ["pokemon", action.pokemonId],
               queryFn: () => fetchPokemon(action.pokemonId),
             });
+
+            await savePokemonData(action.pokemonId, data);
 
             await dex.catchPokemon({
               id: action.pokemonId,

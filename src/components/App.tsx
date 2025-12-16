@@ -115,10 +115,10 @@ function MainApp() {
   };
 
   /* ---------------- Data ---------------- */
-  const { data, isLoading, error } = usePokemonList(page, pageSize);
+  const { data, isLoading, error } = usePokemonList(1);
 
   const pokemonList = data?.results ?? [];
-  const total = data?.count ?? 0;
+  const total = pokemonList.length;
 
   const dex = useDex();
 

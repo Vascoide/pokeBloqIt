@@ -105,7 +105,7 @@ export default function Pokedex({
       <Pagination
         page={page}
         pageSize={pageSize}
-        total={total}
+        total={filtered.length}
         onPageChange={onPageChange}
         isLoading={isLoading}
       />

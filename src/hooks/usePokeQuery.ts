@@ -2,7 +2,7 @@ import { useQuery, useQueries, keepPreviousData } from "@tanstack/react-query";
 import { PokemonType, PokemonAPIListItem, PokemonData } from "../types/pokemon";
 
 const BASE_URL = "https://pokeapi.co/api/v2";
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 1500;
 
 async function fetchPokemonTypes(): Promise<PokemonType[]> {
   const res = await fetch(`${BASE_URL}/type`);

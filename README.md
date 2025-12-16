@@ -1,53 +1,104 @@
-# Frontend Engineering Challenge, by Bloqit
+# PokéBloqIt
 
-With the advent of Pokémon GO many fans got the opportunity to live and breathe their good old memories as Pokémon Trainers. They didn't merely want to relive the past, they sought to ascend to the pinnacle of Pokémon mastery, to become revered as true Pokémon Masters.
-Yet, as they embarked on this journey from humble beginnings, a palpable void became evident — a missing link in their quest for excellence. With no centralized platform to track their progress, many felt adrift in their pursuit of greatness. It was this unmet need that sparked a quest for innovation, a quest to develop a platform that would serve as a guiding light on their path to Pokémon mastery.
+A Pokédex-style web application built with React, TypeScript, and IndexedDB.
+Users can browse Pokémon, view detailed data, catch/release them, and retain
+knowledge of previously seen Pokémon — even offline.
 
-So, how can we help them?
+## Features
 
-## The challenge
+- Browse Pokémon with pagination
+- Grid and table views
+- Filter by name, type, and caught status
+- Sort Pokémon by ID, name, type, height, weight, or caught date
+- View detailed Pokémon data in a modal
+- Catch and release Pokémon
+- Attach a free-text Note to each caught Pokémon
+- Persistent Pokédex using IndexedDB
+- Offline support with queued actions
+- Retains Pokémon data once seen (Pokédex memory)
 
-After having spoken with a couple of Trainers, we were able to gather the most anticipated use cases
+## Tech Stack
 
-_As a Pokémon Trainer I want to_:
+- **React** + **TypeScript**
+- **React Router** for routing
+- **@tanstack/react-query** for data fetching and caching
+- **IndexedDB** (via `idb`) for persistence
+- **Tailwind CSS** for styling
+- **tailwind-merge + clsx** for class composition
+- **Service Worker** for runtime caching
 
-- See all Pokémons that can be caught with their respective names and pictures
-  - Which one of these were already caught by me
-- See all Pokémons that I've caught and thus added to my Pokédex
-- See the most important details of each Pokémon (caught and uncaught):
-  - Height, Weight, Health (HP), Speed, Attack, Defense, Special Attack, Special Defense and its types
-  - When the Pokémon was first added to the Pokédex
-- Share any Pokémon with my fellow trainer colleagues, especially the ones already caught
-- Have access to my Pokédex with limited internet connectivy or none at all
-- Have a quick overview of my progress within the Pokédex
-- Manage my Pokédex according to my taste and needs:
-  - Filter and Sort Pokémons by Name, Height Types and Timestamp
-  - Remove one or multiple Pokémons at once
-  - Attach a free-text Note to each Pokémon
-- Alternate between different view modes
-  - An analytical view (e.g table) is mandatory but surely it's not the best option when the only nearby device at my disposal is my phone
-- Export all Pokémons from the Pokédex to CSV
+## Getting Started
 
-Fortunately, a popular and free Pokémon API comes to rescue us with this endeavor: [PokéAPI](https://pokeapi.co/docs/v2)
+### Prerequisites
 
-## What will be analyzed
+- Node.js 18+
+- npm or pnpm
 
-**Code cohesion, quality, clearness, and correctness**
+### Installation
 
-We value clean code that works and that follows industry-wide standards. Be ready to bring your best programming skills to the table
+```bash
+git clone https://github.com/Vascoide/pokebloqit.git
+cd pokebloqit
+npm install
+```
 
-**Test coverage**
+### Running the app
 
-The "that works" part in the topic above cannot be expressed with 100% certainty unless we have good test coverage. Feel free to include some while implementing your solution
+```bash
+npm run dev
+```
 
-**Codebase organization, modularization, and coupling**
+### Then open
 
-In such a dynamic and fast-paced environment like ours, we always keep an eye out for scalability and also for eventual strategic swings and changes of priority in our product offerings. In a scenario like that, good modularization and low coupling are two critical aspects that allow us to move fast without breaking things
+```bash
+http://localhost:5173
+```
 
-**Engineering principles and practices**
+## 6️⃣ Project structure (high-level)
 
-Sometimes it's good to know the theoretical principles behind certain practices, feel free to bring some of the patterns you may judge necessary when implementing the solution
+This helps people understand your mental model.
 
-**Attention to detail**
+```md
+## Project Structure
 
-Achieving pixel perfection often comes at the cost of runtime performance and implementation. Adding more features can enhance the functionality of an application, but it also introduces complexity that may overwhelm users, especially those new to the platform. Striving for simplicity in design doesn't mean sacrificing functionality. It means prioritizing the most essential features to ensure a smooth, accessible and enjoyable user experience across various devices and network conditions
+src/
+├─ components/ # UI components (grid, table, modals)
+├─ hooks/ # Custom hooks (dex, queries, offline sync)
+├─ libs/ # IndexedDB, helpers, service worker utils
+├─ types/ # Shared TypeScript types
+├─ queryClient.ts # React Query configuration
+└─ App.tsx
+
+## Architectural Decisions
+
+### Pokédex persistence
+
+Caught Pokémon and previously seen Pokémon data are persisted in IndexedDB.
+This allows the app to emulate a real Pokédex experience where knowledge is
+retained once discovered.
+
+### Data fetching
+
+React Query is used to manage API requests, caching, and background updates.
+Detailed Pokémon data is fetched lazily when a Pokémon is opened.
+
+### Offline support
+
+User actions such as catching or releasing Pokémon are queued when offline
+and replayed once connectivity is restored.
+
+### Sorting & filtering
+
+Filtering, sorting, and pagination are handled in a specific order:
+
+1. Filter full dataset
+2. Sort filtered results
+3. Paginate the sorted list
+
+This ensures consistent behavior across pages.
+```
+
+## Assignment
+
+The original exercise description can be found in
+[ASSIGNMENT.md](./ASSIGNMENT.md).

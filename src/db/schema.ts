@@ -1,6 +1,6 @@
 import type { DBSchema } from "idb";
-import type { PokemonListItem } from "../types/pokemon";
-import { OfflineAction } from "../types/offline";
+import type { PokemonListItem, PokemonData } from "../types/pokemon";
+import type { OfflineAction } from "../types/offline";
 
 /**
  * IndexedDB schema for PokéBloqIt
@@ -26,5 +26,13 @@ export interface PokeBloqitDB extends DBSchema {
   "offline-actions": {
     key: number;
     value: OfflineAction;
+  };
+
+  "pokemon-data": {
+    key: number; // pokemon id
+    value: {
+      id: number;
+      data: PokemonData;
+    };
   };
 }

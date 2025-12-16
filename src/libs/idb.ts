@@ -2,11 +2,11 @@ import { openDB, type IDBPDatabase } from "idb";
 import { PokeBloqitDB } from "../db/schema";
 
 export const DB_NAME = "pokebloqit-db";
-export const DB_VER = 2;
+export const DB_VER = 3;
 
 export const POKE_STORE = "dex" as const;
-export const CACHE_STORE = "api-cache" as const;
 export const OFFLINE_STORE = "offline-actions" as const;
+export const POKE_DATA_STORE = "pokemon-data" as const;
 
 let dbPromise: Promise<IDBPDatabase<PokeBloqitDB>> | null = null;
 
@@ -20,16 +20,18 @@ export function getDB() {
           });
 
           dex.createIndex("caughtAt", "caughtAt");
-
-          db.createObjectStore(CACHE_STORE, {
-            keyPath: "key",
-          });
         }
 
         if (oldVersion < 2) {
           db.createObjectStore(OFFLINE_STORE, {
             keyPath: "id",
             autoIncrement: true,
+          });
+        }
+
+        if (oldVersion < 3) {
+          db.createObjectStore(POKE_DATA_STORE, {
+            keyPath: "id",
           });
         }
       },

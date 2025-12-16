@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -8,6 +8,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { queueOfflineAction } from "../libs/offlineQueue";
+import { getPokemonData, savePokemonData } from "../libs/pokemonData";
 import {
   fetchPokemon,
   usePokemon,
@@ -45,6 +46,30 @@ function MainApp() {
     isError,
   } = usePokemon(selectedPokemon?.id ?? null);
 
+  const [knownData, setKnownData] = useState<
+    Record<number, PokemonListItem["data"]>
+  >({});
+
+  useEffect(() => {
+    if (!selectedPokemon?.id || !pokemonData) return;
+
+    const id = selectedPokemon.id;
+
+    // 1️⃣ Update UI cache immediately
+    setKnownData((prev) => {
+      if (prev[id]) return prev;
+      return {
+        ...prev,
+        [id]: pokemonData,
+      };
+    });
+
+    // 2️⃣ Persist to IndexedDB (fire-and-forget)
+    savePokemonData(id, pokemonData).catch((err) => {
+      console.error("Failed to persist pokemon data", err);
+    });
+  }, [pokemonData, selectedPokemon?.id]);
+
   const [showReleaseMany, setShowReleaseMany] = useState<boolean>(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -59,8 +84,6 @@ function MainApp() {
 
   const viewMode: ViewMode =
     searchParams.get("view") === "table" ? "table" : "grid";
-
-  const sort = searchParams.get("sort") ?? "id";
 
   const pageSize = 20;
 
@@ -113,21 +136,42 @@ function MainApp() {
       const id = getIdFromUrl(item.url);
       const entry = dex.dex.find((d) => d.name === item.name);
 
+      const storedData = knownData[id];
+
       return entry
         ? { ...entry, id }
         : {
             id,
             name: item.name,
             caughtAt: null,
-            data: null,
+            data: storedData ?? null,
             note: "",
           };
     });
-  }, [pokemonList, dex.dex]);
+  }, [pokemonList, dex.dex, knownData]);
 
   /* ---------------- Actions ---------------- */
   const handleOpen = async (pokemon: PokemonListItem | null) => {
     if (!pokemon) return;
+
+    // 1️⃣ Already has data
+    if (pokemon.data) {
+      setSelectedPokemon(pokemon);
+      return;
+    }
+
+    // 2️⃣ Try stored Pokédex data
+    const cached = await getPokemonData(pokemon.id);
+    if (cached) {
+      setKnownData((prev) => ({
+        ...prev,
+        [pokemon.id]: cached,
+      }));
+      setSelectedPokemon({ ...pokemon, data: cached });
+      return;
+    }
+
+    // 3️⃣ Let React Query fetch (fallback)
     setSelectedPokemon(pokemon);
   };
 
@@ -136,6 +180,13 @@ function MainApp() {
       queryKey: ["pokemon", pokemon.id],
       queryFn: () => fetchPokemon(pokemon.id),
     });
+
+    await savePokemonData(pokemon.id, data);
+
+    setKnownData((prev) => ({
+      ...prev,
+      [pokemon.id]: data,
+    }));
 
     if (!navigator.onLine) {
       // 1️⃣ Queue the action

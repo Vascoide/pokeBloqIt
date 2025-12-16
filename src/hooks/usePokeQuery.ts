@@ -39,14 +39,29 @@ export async function fetchPokemonListPage(
 
 export async function fetchPokemon(id: number) {
   const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-  if (!res.ok) throw new Error("Failed to fetch Pokémon");
+
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error("Pokémon not found");
+    }
+
+    throw new Error("Failed to load Pokémon details");
+  }
   return res.json();
 }
 
 async function fetchPokemonDetails(name: string): Promise<PokemonData> {
   const res = await fetch(`${BASE_URL}/pokemon/${name}`);
-  if (!res.ok) throw new Error("Failed to fetch details for " + name);
-  return await res.json();
+
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error("Pokémon not found");
+    }
+
+    throw new Error("Failed to load Pokémon details");
+  }
+
+  return res.json();
 }
 
 export function usePokemonList(page: number, pageSize: number = PAGE_SIZE) {

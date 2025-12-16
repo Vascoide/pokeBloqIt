@@ -27,6 +27,7 @@ import type { PokemonListItem, PokemonAPIListItem } from "../types/pokemon";
 import { PokemonTypeName } from "../libs/helper";
 import { useOfflineSync } from "../hooks/useOfflineSync";
 import { queryClient } from "../queryClient";
+import { cn } from "../libs/tailwindHelper";
 
 export default function App() {
   return (
@@ -254,11 +255,12 @@ function MainApp() {
           }}
           end
           className={({ isActive }) =>
-            `px-4 py-2 rounded-full border transition-all ${
+            cn(
+              "px-4 py-2 rounded-full border transition-all",
               isActive
                 ? "bg-blue-600 text-white border-blue-600 shadow"
                 : "text-blue-700 border-blue-400"
-            }`
+            )
           }
         >
           All Pokémon
@@ -274,11 +276,12 @@ function MainApp() {
             })(),
           }}
           className={({ isActive }) =>
-            `px-4 py-2 rounded-full border transition-all ${
+            cn(
+              "px-4 py-2 rounded-full border transition-all",
               isActive
                 ? "bg-blue-600 text-white border-blue-600 shadow"
                 : "text-blue-700 border-blue-400"
-            }`
+            )
           }
         >
           My Pokédex ({dex.dex.length})
@@ -310,7 +313,6 @@ function MainApp() {
             <Pokedex
               isLoading={isLoading}
               items={combinedList}
-              total={total}
               page={page}
               pageSize={pageSize}
               onPageChange={handlePageChange}
@@ -329,7 +331,6 @@ function MainApp() {
             <Pokedex
               isLoading={false}
               items={dex.dex}
-              total={dex.dex.length}
               page={page}
               pageSize={pageSize}
               onPageChange={handlePageChange}

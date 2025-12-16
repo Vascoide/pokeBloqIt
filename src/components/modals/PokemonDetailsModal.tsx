@@ -9,6 +9,7 @@ import {
 import { formatHeight, formatWeight } from "../../libs/pokemonUnits";
 import { loadCachedImage } from "../../libs/imageCache";
 import type { PokemonListItem } from "../../types/pokemon";
+import { cn } from "../../libs/tailwindHelper";
 
 interface PokemonDetailsModalProps {
   pokemon: PokemonListItem;
@@ -120,27 +121,25 @@ Status: ${caughtText}
     }
   };
 
+  const isOpen = isVisible && !isClosing;
+
   return (
     <div
-      className={`
-    fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50
-    transition-opacity duration-300
-    ${isClosing ? "opacity-0" : isVisible ? "opacity-100" : "opacity-0"}
-  `}
+      className={cn(
+        "fixed inset-0 z-50 flex items-center justify-center",
+        "bg-black/50 backdrop-blur-sm",
+        "transition-opacity duration-300",
+        isOpen ? "opacity-100" : "opacity-0"
+      )}
       onClick={startClose}
     >
       <div
-        className={`
-    border border-white/20 p-6 rounded-xl shadow-xl w-full max-w-md relative
-    transform transition-all duration-300
-    ${
-      isClosing
-        ? "scale-95 opacity-0"
-        : isVisible
-          ? "scale-100 opacity-100"
-          : "scale-95 opacity-0"
-    }
-  `}
+        className={cn(
+          "relative w-full max-w-md",
+          "border border-white/20 rounded-xl p-6 shadow-xl",
+          "transform transition-all duration-300",
+          isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"
+        )}
         style={{
           background: `linear-gradient(180deg, ${typeColor} 0%, ${gradientEnd} 10%)`,
         }}

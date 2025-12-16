@@ -1,15 +1,15 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import PokemonGrid from "./PokemonGrid";
 import PokemonTable from "./PokemonTable";
 import Pagination from "./Pagination";
 
 import type { PokemonListItem } from "../types/pokemon";
 import type { Filters, ViewMode } from "../types/filters";
+import { SortDir, SortKey } from "../types/ui";
 
 interface PokedexProps {
   isLoading: boolean;
   items: PokemonListItem[];
-  total: number;
   page: number;
   pageSize: number;
   onPageChange: (page: number) => void;
@@ -23,7 +23,6 @@ interface PokedexProps {
 export default function Pokedex({
   isLoading,
   items,
-  total,
   page,
   pageSize,
   onPageChange,
@@ -61,18 +60,89 @@ export default function Pokedex({
     });
   }, [items, filters]);
 
+  /* ---------------- Sorting ---------------- */
+
+  const [sortBy, setSortBy] = useState<SortKey>("id");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const toggleSort = (key: SortKey) => {
+    if (sortBy === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(key);
+      setSortDir("asc");
+    }
+  };
+
+  const hasValue = (pokemon: PokemonListItem, key: SortKey): boolean => {
+    switch (key) {
+      case "height":
+        return pokemon.data?.height != null;
+      case "weight":
+        return pokemon.data?.weight != null;
+      case "type":
+        return (pokemon.data?.types?.length ?? 0) > 0;
+      default:
+        return true; // id, name, caughtAt always considered present
+    }
+  };
+
+  const sorted = useMemo(() => {
+    const extractValue = (
+      pokemon: PokemonListItem,
+      key: SortKey
+    ): string | number | null => {
+      switch (key) {
+        case "id":
+          return pokemon.id;
+        case "name":
+          return pokemon.name;
+        case "height":
+          return pokemon.data?.height ?? null;
+        case "weight":
+          return pokemon.data?.weight ?? null;
+        case "type":
+          return (
+            pokemon.data?.types
+              ?.map((t) => t.type.name)
+              .join(" ")
+              .toLowerCase() ?? null
+          );
+        case "caughtAt":
+          return pokemon.caughtAt ?? null;
+      }
+    };
+
+    // No sorting for grid view
+    if (viewMode === "grid") return filtered;
+
+    return [...filtered].sort((a, b) => {
+      const aHas = hasValue(a, sortBy);
+      const bHas = hasValue(b, sortBy);
+
+      // 1️⃣ Always push missing values to the bottom
+      if (aHas && !bHas) return -1;
+      if (!aHas && bHas) return 1;
+
+      // 2️⃣ If both missing, consider equal
+      if (!aHas && !bHas) return 0;
+
+      // 3️⃣ Normal comparison
+      const valA = extractValue(a, sortBy)!;
+      const valB = extractValue(b, sortBy)!;
+
+      if (valA < valB) return sortDir === "asc" ? -1 : 1;
+      if (valA > valB) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [filtered, sortBy, sortDir]);
+
   /* ---------------- Pagination ---------------- */
-  const isClientPaginated = items.length === total;
 
   const paginatedItems = useMemo(() => {
-    if (!isClientPaginated) {
-      // Server-side pagination already applied
-      return filtered;
-    }
-
     const start = (page - 1) * pageSize;
-    return filtered.slice(start, start + pageSize);
-  }, [filtered, isClientPaginated, page, pageSize]);
+    return sorted.slice(start, start + pageSize);
+  }, [sorted, page, pageSize]);
 
   /* ---------------- Loading ---------------- */
   if (isLoading) {
@@ -96,6 +166,9 @@ export default function Pokedex({
       ) : (
         <PokemonTable
           items={paginatedItems}
+          sortBy={sortBy}
+          sortDir={sortDir}
+          onSort={toggleSort}
           onOpen={onOpen}
           onCatch={onCatch}
           onRelease={onRelease}

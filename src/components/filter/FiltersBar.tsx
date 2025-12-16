@@ -4,6 +4,7 @@ import TypeFilter from "./TypeFilter";
 
 import type { Filters, ViewMode } from "../../types/filters";
 import type { PokemonListItem } from "../../types/pokemon";
+import { cn } from "../../libs/tailwindHelper";
 
 interface FiltersBarProps {
   dex: PokemonListItem[];
@@ -78,22 +79,24 @@ export default function FiltersBar({
         )}
 
         <button
-          className={`px-3 py-2 rounded text-sm border ${
+          className={cn(
+            "px-3 py-2 rounded text-sm border",
             viewMode === "grid"
               ? "bg-blue-500 border-blue-400"
               : "bg-black/20 border-white/20"
-          }`}
+          )}
           onClick={() => onViewModeChange("grid")}
         >
           Grid
         </button>
 
         <button
-          className={`px-3 py-2 rounded text-sm border ${
+          className={cn(
+            "px-3 py-2 rounded text-sm border",
             viewMode === "table"
               ? "bg-blue-500 border-blue-400"
               : "bg-black/20 border-white/20"
-          }`}
+          )}
           onClick={() => onViewModeChange("table")}
         >
           Table

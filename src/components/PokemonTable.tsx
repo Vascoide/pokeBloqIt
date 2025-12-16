@@ -1,71 +1,19 @@
 import { useState, useMemo } from "react";
-import type { PokemonListViewProps } from "../types/ui";
+import type { SortKey, SortDir, PokemonTableViewProps } from "../types/ui";
 import type { PokemonListItem } from "../types/pokemon";
 
 import { getTypeColor } from "../libs/helper";
 import { formatHeight, formatWeight } from "../libs/pokemonUnits";
 
-type SortKey = "id" | "name" | "height" | "weight" | "type" | "caughtAt";
-type SortDir = "asc" | "desc";
-
 export default function PokemonTable({
   items,
+  sortBy,
+  sortDir,
+  onSort,
   onOpen,
   onCatch,
   onRelease,
-}: PokemonListViewProps) {
-  const [sortBy, setSortBy] = useState<SortKey>("id");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
-
-  const toggleSort = (key: SortKey) => {
-    if (sortBy === key) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortBy(key);
-      setSortDir("asc");
-    }
-  };
-
-  const extractValue = (
-    pokemon: PokemonListItem,
-    key: SortKey
-  ): string | number => {
-    switch (key) {
-      case "id":
-        return pokemon.id;
-      case "name":
-        return pokemon.name;
-      case "height":
-        return pokemon.data?.height ?? 0;
-      case "weight":
-        return pokemon.data?.weight ?? 0;
-      case "type":
-        return (
-          pokemon.data?.types
-            ?.map((t) => t.type.name)
-            .join(" ")
-            .toLowerCase() ?? ""
-        );
-      case "caughtAt":
-        return pokemon.caughtAt ?? 0;
-      default:
-        return "";
-    }
-  };
-
-  const sorted = useMemo(() => {
-    const compare = (a: PokemonListItem, b: PokemonListItem) => {
-      const valA = extractValue(a, sortBy);
-      const valB = extractValue(b, sortBy);
-
-      if (valA < valB) return sortDir === "asc" ? -1 : 1;
-      if (valA > valB) return sortDir === "asc" ? 1 : -1;
-      return 0;
-    };
-
-    return [...items].sort(compare);
-  }, [items, sortBy, sortDir]);
-
+}: PokemonTableViewProps) {
   return (
     <div className="overflow-x-auto rounded-xl bg-white/5 p-2 border border-white/10">
       <table className="w-full table-fixed">
@@ -74,39 +22,39 @@ export default function PokemonTable({
             <SortableHeader
               label="ID"
               keyName="id"
-              {...{ sortBy, sortDir, onSort: toggleSort }}
+              {...{ sortBy, sortDir, onSort }}
             />
             <SortableHeader
               label="Name"
               keyName="name"
-              {...{ sortBy, sortDir, onSort: toggleSort }}
+              {...{ sortBy, sortDir, onSort }}
             />
             <SortableHeader
               label="Type"
               keyName="type"
-              {...{ sortBy, sortDir, onSort: toggleSort }}
+              {...{ sortBy, sortDir, onSort }}
             />
             <SortableHeader
               label="Height"
               keyName="height"
-              {...{ sortBy, sortDir, onSort: toggleSort }}
+              {...{ sortBy, sortDir, onSort }}
             />
             <SortableHeader
               label="Weight"
               keyName="weight"
-              {...{ sortBy, sortDir, onSort: toggleSort }}
+              {...{ sortBy, sortDir, onSort }}
             />
             <SortableHeader
               label="Caught"
               keyName="caughtAt"
-              {...{ sortBy, sortDir, onSort: toggleSort }}
+              {...{ sortBy, sortDir, onSort }}
             />
             <th className="py-2 px-3 w-[100px]">Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          {sorted.map((pokemon) => {
+          {items.map((pokemon) => {
             const isCaught = pokemon.caughtAt !== null;
 
             return (
@@ -179,7 +127,7 @@ export default function PokemonTable({
         </tbody>
       </table>
 
-      {sorted.length === 0 && (
+      {items.length === 0 && (
         <div className="w-full flex justify-center py-12 text-gray-300">
           No Pokémon match your filters.
         </div>

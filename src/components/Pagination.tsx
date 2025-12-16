@@ -1,3 +1,4 @@
+import { cn } from "../libs/tailwindHelper";
 interface PaginationProps {
   page: number;
   pageSize: number;
@@ -30,7 +31,7 @@ export default function Pagination({
         Prev
       </button>
 
-      <span className={`font-semibold ${isLoading ? "opacity-60" : ""}`}>
+      <span className={cn("font-semibold", isLoading && "opacity-60")}>
         {isLoading ? "Loading…" : `Page ${page} / ${totalPages}`}
       </span>
 

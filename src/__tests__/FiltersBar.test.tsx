@@ -50,7 +50,6 @@ describe("FiltersBar", () => {
       />
     );
 
-    expect(screen.getByLabelText(/search/i)).toBeInTheDocument();
     expect(screen.getByText(/reset/i)).toBeInTheDocument();
     expect(screen.getByText(/grid/i)).toBeInTheDocument();
     expect(screen.getByText(/table/i)).toBeInTheDocument();

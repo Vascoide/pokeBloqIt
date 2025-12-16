@@ -1,4 +1,4 @@
-import { cn } from "../libs/tailwindHelper";
+import { cn } from "../../libs/tailwindHelper";
 interface PaginationProps {
   page: number;
   pageSize: number;

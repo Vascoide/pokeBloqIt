@@ -1,5 +1,5 @@
 import { openDB, type IDBPDatabase } from "idb";
-import { PokeBloqitDB } from "../db/schema";
+import { PokeBloqitDB } from "./schema";
 
 export const DB_NAME = "pokebloqit-db";
 export const DB_VER = 3;

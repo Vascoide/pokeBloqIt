@@ -3,9 +3,9 @@ import PokemonGrid from "./PokemonGrid";
 import PokemonTable from "./PokemonTable";
 import Pagination from "./Pagination";
 
-import type { PokemonListItem } from "../types/pokemon";
-import type { Filters, ViewMode } from "../types/filters";
-import { SortDir, SortKey } from "../types/ui";
+import type { PokemonListItem } from "../../types/pokemon";
+import type { Filters, ViewMode } from "../../types/filters";
+import { SortDir, SortKey } from "../../types/ui";
 
 interface PokedexProps {
   isLoading: boolean;
@@ -82,6 +82,8 @@ export default function Pokedex({
         return pokemon.data?.weight != null;
       case "type":
         return (pokemon.data?.types?.length ?? 0) > 0;
+      case "caughtAt":
+        return pokemon.caughtAt != null;
       default:
         return true; // id, name, caughtAt always considered present
     }

@@ -20,7 +20,7 @@ import PokemonDetailsModal from "./modals/PokemonDetailsModal";
 import ReleaseManyModal from "./modals/ReleaseManyModal";
 import ExportButtons from "./ExportButtons";
 import FiltersBar from "./filter/FiltersBar";
-import Pokedex from "./Pokedex";
+import Pokedex from "./pokedex/Pokedex";
 
 import type { Filters, ViewMode } from "../types/filters";
 import type { PokemonListItem, PokemonAPIListItem } from "../types/pokemon";

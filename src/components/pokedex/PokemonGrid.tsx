@@ -1,5 +1,5 @@
 import PokemonCard from "./PokemonCard";
-import type { PokemonListViewProps } from "../types/ui";
+import type { PokemonListViewProps } from "../../types/ui";
 
 export default function PokemonGrid({
   items,

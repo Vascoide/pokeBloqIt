@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { loadCachedImage } from "../libs/imageCache";
-import type { PokemonListItem } from "../types/pokemon";
+import { loadCachedImage } from "../../libs/imageCache";
+import type { PokemonListItem } from "../../types/pokemon";
 
 interface PokemonCardProps {
   pokemon: PokemonListItem;

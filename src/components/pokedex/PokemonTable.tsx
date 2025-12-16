@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
-import type { SortKey, SortDir, PokemonTableViewProps } from "../types/ui";
-import type { PokemonListItem } from "../types/pokemon";
+import type { SortKey, SortDir, PokemonTableViewProps } from "../../types/ui";
+import type { PokemonListItem } from "../../types/pokemon";
 
-import { getTypeColor } from "../libs/helper";
-import { formatHeight, formatWeight } from "../libs/pokemonUnits";
+import { getTypeColor } from "../../libs/helper";
+import { formatHeight, formatWeight } from "../../libs/pokemonUnits";
 
 export default function PokemonTable({
   items,

@@ -44,3 +44,13 @@ export function getTypeColor(type: PokemonTypeName): string {
 export function getStatColor(stat: PokemonStatName): string {
   return STAT_COLORS[stat];
 }
+
+const MEGA_STRING = "-mega";
+
+export function formatPokemonName(name: string): string {
+  if (name.includes(MEGA_STRING)) {
+    // Remove "-mega" and prepend "Mega "
+    return `Mega ${name.replace(MEGA_STRING, "")}`;
+  }
+  return name;
+}

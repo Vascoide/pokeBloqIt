@@ -1,8 +1,6 @@
 import { useState, useMemo } from "react";
-import type { SortKey, SortDir, PokemonTableViewProps } from "../../types/ui";
-import type { PokemonListItem } from "../../types/pokemon";
-
-import { getTypeColor } from "../../libs/helper";
+import { PokemonTableViewProps, SortDir, SortKey } from "../../types/ui";
+import { formatPokemonName, getTypeColor } from "../../libs/helper";
 import { formatHeight, formatWeight } from "../../libs/pokemonUnits";
 
 export default function PokemonTable({
@@ -69,7 +67,7 @@ export default function PokemonTable({
               >
                 <td className="py-2 px-3">{pokemon.id}</td>
                 <td className="py-2 px-3 capitalize font-medium">
-                  {pokemon.name}
+                  {formatPokemonName(pokemon.name)}
                 </td>
                 <td className="py-2 px-3 flex gap-1">
                   {pokemon.data?.types?.map((t) => {

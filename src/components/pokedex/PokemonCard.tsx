@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { loadCachedImage } from "../../libs/imageCache";
 import type { PokemonListItem } from "../../types/pokemon";
+import { formatPokemonName } from "../../libs/helper";
 
 interface PokemonCardProps {
   pokemon: PokemonListItem;
@@ -25,8 +26,6 @@ export default function PokemonCard({
     loadCachedImage(image).then(setSpriteURL);
   }, [image]);
 
-  const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
-
   return (
     <div
       onClick={(e) => {
@@ -44,7 +43,9 @@ export default function PokemonCard({
         loading="lazy"
       />
 
-      <p className="font-semibold text-center mb-2">{formattedName}</p>
+      <p className="font-semibold text-center mb-2 capitalize">
+        {formatPokemonName(pokemon.name)}
+      </p>
 
       {caughtAt ? (
         <p className="text-green-400 text-xs mb-3">Caught</p>

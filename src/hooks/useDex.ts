@@ -1,32 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import { openDB, type IDBPDatabase } from "idb";
+import { getDB, POKE_STORE } from "../libs/idb";
 import type { PokemonListItem, PokemonData } from "../types/pokemon";
-
-const DB_NAME = "pokedex-db";
-const STORE_NAME = "pokemon";
-
-/* ------------------------------------------------------------------ */
-/* IndexedDB singleton */
-/* ------------------------------------------------------------------ */
-
-let dbPromise: Promise<IDBPDatabase> | null = null;
-
-function getDB(): Promise<IDBPDatabase> {
-  if (!dbPromise) {
-    dbPromise = openDB(DB_NAME, 1, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          const store = db.createObjectStore(STORE_NAME, {
-            keyPath: "name",
-          });
-          store.createIndex("name", "name");
-        }
-      },
-    });
-  }
-
-  return dbPromise;
-}
 
 /* ------------------------------------------------------------------ */
 /* Hook */
@@ -42,7 +16,7 @@ export function useDex() {
 
     (async () => {
       const db = await getDB();
-      const all = (await db.getAll(STORE_NAME)) as PokemonListItem[];
+      const all = (await db.getAll(POKE_STORE)) as PokemonListItem[];
 
       if (!cancelled) {
         setDex(all);
@@ -70,7 +44,7 @@ export function useDex() {
       data?: PokemonData | null;
     }) => {
       const db = await getDB();
-      const existing = (await db.get(STORE_NAME, name)) as
+      const existing = (await db.get(POKE_STORE, name)) as
         | PokemonListItem
         | undefined;
 
@@ -87,7 +61,7 @@ export function useDex() {
         },
       };
 
-      await db.put(STORE_NAME, entry);
+      await db.put(POKE_STORE, entry);
 
       setDex((prev) => {
         const filtered = prev.filter((p) => p.name !== name);
@@ -99,7 +73,7 @@ export function useDex() {
 
   const releasePokemon = useCallback(async (name: string) => {
     const db = await getDB();
-    await db.delete(STORE_NAME, name);
+    await db.delete(POKE_STORE, name);
     setDex((prev) => prev.filter((p) => p.name !== name));
   }, []);
 
@@ -107,7 +81,7 @@ export function useDex() {
     const db = await getDB();
 
     for (const name of names) {
-      await db.delete(STORE_NAME, name);
+      await db.delete(POKE_STORE, name);
     }
 
     setDex((prev) => prev.filter((p) => !names.includes(p.name)));
@@ -115,14 +89,14 @@ export function useDex() {
 
   const updateNote = useCallback(async (name: string, note: string) => {
     const db = await getDB();
-    const entry = (await db.get(STORE_NAME, name)) as
+    const entry = (await db.get(POKE_STORE, name)) as
       | PokemonListItem
       | undefined;
 
     if (!entry) return;
 
     const updated: PokemonListItem = { ...entry, note };
-    await db.put(STORE_NAME, updated);
+    await db.put(POKE_STORE, updated);
 
     setDex((prev) => prev.map((p) => (p.name === name ? updated : p)));
   }, []);

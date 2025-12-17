@@ -23,7 +23,7 @@ import FiltersBar from "./filter/FiltersBar";
 import Pokedex from "./pokedex/Pokedex";
 
 import type { Filters, ViewMode } from "../types/filters";
-import type { PokemonListItem, PokemonAPIListItem } from "../types/pokemon";
+import type { PokemonListItem } from "../types/pokemon";
 import { PokemonTypeName } from "../libs/helper";
 import { useOfflineSync } from "../hooks/useOfflineSync";
 import { queryClient } from "../queryClient";
@@ -56,16 +56,15 @@ function MainApp() {
 
     const id = selectedPokemon.id;
 
-    // 1️⃣ Update UI cache immediately
-    setKnownData((prev) => {
-      if (prev[id]) return prev;
-      return {
-        ...prev,
-        [id]: pokemonData,
-      };
+    // Defer state update
+    void Promise.resolve().then(() => {
+      setKnownData((prev) => {
+        if (prev[id]) return prev;
+        return { ...prev, [id]: pokemonData };
+      });
     });
 
-    // 2️⃣ Persist to IndexedDB (fire-and-forget)
+    // Fire-and-forget save to IndexedDB
     savePokemonData(id, pokemonData).catch((err) => {
       console.error("Failed to persist pokemon data", err);
     });
@@ -116,10 +115,11 @@ function MainApp() {
   };
 
   /* ---------------- Data ---------------- */
-  const { data, isLoading, error } = usePokemonList(1);
+  const { data, isLoading } = usePokemonList(1);
 
-  const pokemonList = data?.results ?? [];
-  const total = pokemonList.length;
+  const pokemonList = useMemo(() => {
+    return data?.results ?? [];
+  }, [data]);
 
   const dex = useDex();
 
@@ -133,7 +133,7 @@ function MainApp() {
 
   /* ---------------- Combine API + Dex ---------------- */
   const combinedList: PokemonListItem[] = useMemo(() => {
-    return (pokemonList as PokemonAPIListItem[]).map((item) => {
+    return pokemonList.map((item) => {
       const id = getIdFromUrl(item.url);
       const entry = dex.dex.find((d) => d.name === item.name);
 

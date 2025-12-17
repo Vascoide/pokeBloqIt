@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import type { PokemonListItem } from "../../types/pokemon";
 import { cn } from "../../libs/tailwindHelper";
 
@@ -25,10 +25,10 @@ export default function ReleaseManyModal({
     });
   }, []);
 
-  const startClose = () => {
+  const startClose = useCallback(() => {
     setIsClosing(true);
     setTimeout(onClose, 200);
-  };
+  }, [onClose]);
 
   // Close on ESC
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function ReleaseManyModal({
 
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, []);
+  }, [startClose]);
 
   const toggle = (name: string) => {
     setSelected((prev) =>

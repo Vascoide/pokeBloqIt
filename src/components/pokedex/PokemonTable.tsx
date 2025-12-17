@@ -1,4 +1,3 @@
-import { useState, useMemo } from "react";
 import { PokemonTableViewProps, SortDir, SortKey } from "../../types/ui";
 import { formatPokemonName, getTypeColor } from "../../libs/helper";
 import { formatHeight, formatWeight } from "../../libs/pokemonUnits";

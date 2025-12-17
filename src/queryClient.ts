@@ -33,7 +33,7 @@ export function setupQueryPersistence() {
     storage: window.localStorage,
   });
 
-  persistQueryClient({
+  void persistQueryClient({
     queryClient,
     persister,
     maxAge: 1000 * 60 * 60 * 24,

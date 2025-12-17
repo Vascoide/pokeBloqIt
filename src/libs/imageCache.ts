@@ -1,8 +1,8 @@
 import { get, set } from "idb-keyval";
 
-export async function loadCachedImage(url : string) {
+export async function loadCachedImage(url: string) {
   // Try to load blob from cache
-  const cachedBlob = await get(url);
+  const cachedBlob = await get<Blob>(url);
   if (cachedBlob instanceof Blob) {
     return URL.createObjectURL(cachedBlob);
   }

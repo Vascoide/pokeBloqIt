@@ -14,9 +14,9 @@ export function useDex() {
   useEffect(() => {
     let cancelled = false;
 
-    (async () => {
+    void (async () => {
       const db = await getDB();
-      const all = (await db.getAll(POKE_STORE)) as PokemonListItem[];
+      const all = await db.getAll(POKE_STORE);
 
       if (!cancelled) {
         setDex(all);
@@ -44,9 +44,7 @@ export function useDex() {
       data?: PokemonData | null;
     }) => {
       const db = await getDB();
-      const existing = (await db.get(POKE_STORE, name)) as
-        | PokemonListItem
-        | undefined;
+      const existing = await db.get(POKE_STORE, name);
 
       const entry: PokemonListItem = existing ?? {
         id,
@@ -89,9 +87,7 @@ export function useDex() {
 
   const updateNote = useCallback(async (name: string, note: string) => {
     const db = await getDB();
-    const entry = (await db.get(POKE_STORE, name)) as
-      | PokemonListItem
-      | undefined;
+    const entry = await db.get(POKE_STORE, name);
 
     if (!entry) return;
 

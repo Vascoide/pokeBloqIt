@@ -30,7 +30,7 @@ export default function FiltersBar({
     onChange({ ...filters, [key]: value });
   };
 
-  const { data: types = [], isLoading, error } = usePokemonTypes();
+  const { data: types = [] } = usePokemonTypes();
 
   return (
     <div className="bg-white/10 border border-white/20 p-4 rounded-xl mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

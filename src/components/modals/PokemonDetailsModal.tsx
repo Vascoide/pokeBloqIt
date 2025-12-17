@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   capitalize,
   getTypeColor,
@@ -36,17 +36,13 @@ export default function PokemonDetailsModal({
   const { data } = pokemon;
 
   useEffect(() => {
-    setNote(pokemon.note || "");
-  }, [pokemon]);
-
-  useEffect(() => {
     requestAnimationFrame(() => setIsVisible(true));
   }, []);
 
-  const startClose = () => {
+  const startClose = useCallback(() => {
     setIsClosing(true);
     setTimeout(onClose, 200);
-  };
+  }, [onClose]);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -54,7 +50,7 @@ export default function PokemonDetailsModal({
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, []);
+  }, [startClose]);
 
   const firstType = (data?.types?.[0]?.type?.name ??
     "normal") satisfies PokemonTypeName;
@@ -65,7 +61,11 @@ export default function PokemonDetailsModal({
   const sprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
 
   useEffect(() => {
-    loadCachedImage(sprite).then(setSpriteURL);
+    loadCachedImage(sprite)
+      .then(setSpriteURL)
+      .catch(() => {
+        throw new Error("Failed to load sprite");
+      });
   }, [sprite]);
 
   /* ---------------- Loading / error states ---------------- */
@@ -91,7 +91,7 @@ export default function PokemonDetailsModal({
 
   const title = capitalize(pokemon.name);
 
-  const sharePokemon = () => {
+  const sharePokemon = async () => {
     if (!data) return;
 
     const isCaught = Boolean(pokemon.caughtAt);
@@ -113,11 +113,16 @@ Base Stat Total: ${totalStats}
 Status: ${caughtText}
 `.trim();
 
-    if (navigator.share) {
-      navigator.share({ title: `${title} info`, text: message });
-    } else {
-      navigator.clipboard.writeText(message);
-      alert("Pokémon info copied to clipboard!");
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `${title} info`, text: message });
+      } else {
+        await navigator.clipboard.writeText(message);
+        alert("Pokémon info copied to clipboard!");
+      }
+    } catch (err) {
+      console.error("Failed to share/copy Pokémon info:", err);
+      throw new Error("Failed to share/copy Pokémon info.");
     }
   };
 

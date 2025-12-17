@@ -8,7 +8,7 @@ async function fetchPokemonTypes(): Promise<PokemonType[]> {
   const res = await fetch(`${BASE_URL}/type`);
   if (!res.ok) throw new Error("Failed to fetch Pokémon types");
 
-  const json = await res.json();
+  const json = (await res.json()) as { results: PokemonType[] };
 
   return json.results.sort((a: PokemonType, b: PokemonType) =>
     a.name.localeCompare(b.name)
@@ -34,11 +34,14 @@ export async function fetchPokemonListPage(
     throw new Error("Failed to fetch Pokémon list");
   }
 
-  return res.json();
+  // Type assertion for safety
+  const data = (await res.json()) as PokemonListResponse;
+
+  return data;
 }
 
-export async function fetchPokemon(id: number) {
-  const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+export async function fetchPokemon(id: number): Promise<PokemonData> {
+  const res = await fetch(`${BASE_URL}/pokemon/${id}`);
 
   if (!res.ok) {
     if (res.status === 404) {
@@ -47,7 +50,10 @@ export async function fetchPokemon(id: number) {
 
     throw new Error("Failed to load Pokémon details");
   }
-  return res.json();
+
+  const data = (await res.json()) as PokemonData;
+
+  return data;
 }
 
 async function fetchPokemonDetails(name: string): Promise<PokemonData> {
@@ -60,8 +66,9 @@ async function fetchPokemonDetails(name: string): Promise<PokemonData> {
 
     throw new Error("Failed to load Pokémon details");
   }
+  const data = (await res.json()) as PokemonData;
 
-  return res.json();
+  return data;
 }
 
 export function usePokemonList(page: number, pageSize: number = PAGE_SIZE) {

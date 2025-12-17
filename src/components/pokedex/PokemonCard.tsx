@@ -16,14 +16,18 @@ export default function PokemonCard({
   onCatch,
   onRelease,
 }: PokemonCardProps) {
-  const { name, data, id, caughtAt } = pokemon;
+  const { name, id, caughtAt } = pokemon;
 
   const image = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
   const [spriteURL, setSpriteURL] = useState<string | null>(null);
 
   useEffect(() => {
-    loadCachedImage(image).then(setSpriteURL);
+    loadCachedImage(image)
+      .then(setSpriteURL)
+      .catch(() => {
+        throw new Error("Failed to load sprite");
+      });
   }, [image]);
 
   return (

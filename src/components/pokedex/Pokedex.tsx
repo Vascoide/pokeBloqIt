@@ -137,7 +137,7 @@ export default function Pokedex({
       if (valA > valB) return sortDir === "asc" ? 1 : -1;
       return 0;
     });
-  }, [filtered, sortBy, sortDir]);
+  }, [filtered, sortBy, sortDir, viewMode]);
 
   /* ---------------- Pagination ---------------- */
 

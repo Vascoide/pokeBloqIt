@@ -89,7 +89,7 @@ export default function ReleaseManyModal({
       >
         {/* Close */}
         <button
-          className="absolute top-3 right-3 text-white text-xl hover:text-red-300"
+          className="absolute px-4 py-2 top-3 right-3 text-white text-xl hover:text-red-300"
           onClick={startClose}
         >
           ✕
@@ -152,11 +152,12 @@ export default function ReleaseManyModal({
               <div
                 key={pk.name}
                 onClick={() => toggle(pk.name)}
-                className={`p-3 rounded-lg border cursor-pointer transition-all text-center ${
+                className={cn(
+                  "p-3 rounded-lg border cursor-pointer transition-all text-center",
                   isSelected
-                    ? "bg-gray-600 border-red-400 shadow"
-                    : "bg-gray/10 border-white/20 hover:bg-red/30"
-                }`}
+                    ? "bg-gray-700 border-red-400 shadow"
+                    : "bg-gray-800/50 border-white/20 hover:bg-red-500/30"
+                )}
               >
                 <img
                   src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pk.id}.png`}

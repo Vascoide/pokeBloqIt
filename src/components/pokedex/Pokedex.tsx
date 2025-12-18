@@ -14,6 +14,9 @@ interface PokedexProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   viewMode: ViewMode;
+  sortBy: SortKey;
+  sortDir: SortDir;
+  onSortChange: (sortBy: SortKey, sortDir: SortDir) => void;
   onOpen: (pokemon: PokemonListItem) => void;
   onCatch: (pokemon: PokemonListItem) => void;
   onRelease: (name: string) => void;
@@ -27,6 +30,9 @@ export default function Pokedex({
   pageSize,
   onPageChange,
   viewMode,
+  sortBy,
+  sortDir,
+  onSortChange,
   onOpen,
   onCatch,
   onRelease,
@@ -62,15 +68,11 @@ export default function Pokedex({
 
   /* ---------------- Sorting ---------------- */
 
-  const [sortBy, setSortBy] = useState<SortKey>("id");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
-
   const toggleSort = (key: SortKey) => {
     if (sortBy === key) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+      onSortChange(key, sortDir === "asc" ? "desc" : "asc");
     } else {
-      setSortBy(key);
-      setSortDir("asc");
+      onSortChange(key, "asc");
     }
   };
 
@@ -115,8 +117,10 @@ export default function Pokedex({
       }
     };
 
-    // No sorting for grid view
-    if (viewMode === "grid") return filtered;
+    // Grid view: always sort by ID ascending
+    if (viewMode === "grid") {
+      return [...filtered].sort((a, b) => a.id - b.id);
+    }
 
     return [...filtered].sort((a, b) => {
       const aHas = hasValue(a, sortBy);

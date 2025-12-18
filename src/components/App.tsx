@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -28,6 +28,7 @@ import { PokemonTypeName } from "../libs/helper";
 import { useOfflineSync } from "../hooks/useOfflineSync";
 import { queryClient } from "../queryClient";
 import { cn } from "../libs/tailwindHelper";
+import { SortDir, SortKey } from "../types/ui";
 
 export default function App() {
   return (
@@ -85,6 +86,18 @@ function MainApp() {
   const viewMode: ViewMode =
     searchParams.get("view") === "table" ? "table" : "grid";
 
+  const sortByParam = searchParams.get("sortBy") as SortKey | null;
+  const sortDirParam = searchParams.get("sortDir") as SortDir | null;
+
+  // Defaults
+  const sortBy: SortKey = sortByParam ?? "id";
+  const sortDir: SortDir = sortDirParam ?? "asc";
+
+  const lastTableSort = useRef<{ by: SortKey; dir: SortDir }>({
+    by: "id",
+    dir: "asc",
+  });
+
   const pageSize = 20;
 
   const location = useLocation();
@@ -103,15 +116,32 @@ function MainApp() {
     setSearchParams(next);
   }
 
+  const handleSortChange = (nextBy: SortKey, nextDir: SortDir) => {
+    lastTableSort.current = { by: nextBy, dir: nextDir };
+    updateParams({
+      sortBy: nextBy,
+      sortDir: nextDir,
+    });
+  };
+
   const handlePageChange = (nextPage: number) => {
     updateParams({ page: String(nextPage) });
   };
 
   const handleViewModeChange = (mode: ViewMode) => {
-    updateParams({
-      view: mode,
-      page: "1",
-    });
+    if (mode === "grid") {
+      updateParams({
+        view: "grid",
+        sortBy: null,
+        sortDir: null,
+      });
+    } else {
+      updateParams({
+        view: "table",
+        sortBy: lastTableSort.current.by,
+        sortDir: lastTableSort.current.dir,
+      });
+    }
   };
 
   /* ---------------- Data ---------------- */
@@ -317,6 +347,9 @@ function MainApp() {
               pageSize={pageSize}
               onPageChange={handlePageChange}
               viewMode={viewMode}
+              sortBy={sortBy}
+              sortDir={sortDir}
+              onSortChange={handleSortChange}
               onOpen={handleOpen}
               onCatch={handleCatch}
               onRelease={handleRelease}
@@ -335,6 +368,9 @@ function MainApp() {
               pageSize={pageSize}
               onPageChange={handlePageChange}
               viewMode={viewMode}
+              sortBy={sortBy}
+              sortDir={sortDir}
+              onSortChange={handleSortChange}
               onOpen={handleOpen}
               onCatch={handleCatch}
               onRelease={handleRelease}

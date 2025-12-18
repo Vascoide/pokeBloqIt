@@ -70,20 +70,20 @@ export default function ReleaseManyModal({
     setShowConfirm(false);
   };
 
+  const isOpen = isVisible && !isClosing;
+
   return (
     <div
       className={cn(
-        "fixed inset-0 bg-black/50 transition-opacity",
-        isClosing ? "opacity-0" : "opacity-100"
+        "fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300",
+        isOpen ? "opacity-100" : "opacity-0"
       )}
       onClick={startClose}
     >
       <div
         className={cn(
-          "transform transition-all duration-300",
-          isVisible && "scale-100 opacity-100",
-          !isVisible && "scale-95 opacity-0",
-          isClosing && "opacity-0"
+          "bg-black/90 border border-white/20 p-6 rounded-xl w-full max-w-3xl relative transform transition-all duration-300",
+          isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"
         )}
         onClick={(e) => e.stopPropagation()}
       >

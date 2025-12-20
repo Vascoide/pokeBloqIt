@@ -5,6 +5,7 @@ import {
   getStatColor,
   PokemonTypeName,
   PokemonStatName,
+  formatPokemonName,
 } from "../../libs/helper";
 import { formatHeight, formatWeight } from "../../libs/pokemonUnits";
 import { loadCachedImage } from "../../libs/imageCache";
@@ -89,7 +90,8 @@ export default function PokemonDetailsModal({
     );
   }
 
-  const title = capitalize(pokemon.name);
+  const formattedName = formatPokemonName(pokemon.name);
+  const title = capitalize(formattedName);
 
   const sharePokemon = async () => {
     if (!data) return;
@@ -161,7 +163,9 @@ Status: ${caughtText}
           ✕
         </button>
         {/* Title */}
-        <h2 className="text-2xl font-bold text-center mb-3">{title}</h2>
+        <h2 className="text-2xl font-bold text-center mb-3 capitalize">
+          {formattedName}
+        </h2>
         <div className="flex flex-col items-center mb-4">
           <img
             src={spriteURL}

@@ -6,6 +6,7 @@ import {
   PokemonTypeName,
   PokemonStatName,
   formatPokemonName,
+  FALLBACK_IMAGE,
 } from "../../libs/helper";
 import { formatHeight, formatWeight } from "../../libs/pokemonUnits";
 import { loadCachedImage } from "../../libs/imageCache";
@@ -30,7 +31,8 @@ export default function PokemonDetailsModal({
   const [note, setNote] = useState<string>(pokemon.note);
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isClosing, setIsClosing] = useState<boolean>(false);
-  const [spriteURL, setSpriteURL] = useState<string>();
+  const [spriteURL, setSpriteURL] = useState<string | undefined>();
+  const [hasImageError, setHasImageError] = useState<boolean>(false);
 
   /* ---------------- React Query Pokémon data ---------------- */
 
@@ -65,6 +67,7 @@ export default function PokemonDetailsModal({
     loadCachedImage(sprite)
       .then(setSpriteURL)
       .catch(() => {
+        setSpriteURL(undefined); // fall back to raw image
         throw new Error("Failed to load sprite");
       });
   }, [sprite]);
@@ -168,9 +171,10 @@ Status: ${caughtText}
         </h2>
         <div className="flex flex-col items-center mb-4">
           <img
-            src={spriteURL}
+            src={hasImageError ? FALLBACK_IMAGE : spriteURL}
             alt={pokemon.name}
             className="w-32 h-32 object-contain mb-3"
+            onError={() => setHasImageError(true)}
           />
 
           {/* Types */}

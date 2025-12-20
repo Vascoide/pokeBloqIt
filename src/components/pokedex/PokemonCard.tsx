@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { loadCachedImage } from "../../libs/imageCache";
 import type { PokemonListItem } from "../../types/pokemon";
-import { formatPokemonName } from "../../libs/helper";
+import { FALLBACK_IMAGE, formatPokemonName } from "../../libs/helper";
 
 interface PokemonCardProps {
   pokemon: PokemonListItem;
@@ -21,11 +21,13 @@ export default function PokemonCard({
   const image = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
   const [spriteURL, setSpriteURL] = useState<string | null>(null);
+  const [hasImageError, setHasImageError] = useState<boolean>(false);
 
   useEffect(() => {
     loadCachedImage(image)
       .then(setSpriteURL)
       .catch(() => {
+        setSpriteURL(null); // fall back to raw image
         throw new Error("Failed to load sprite");
       });
   }, [image]);
@@ -41,10 +43,11 @@ export default function PokemonCard({
       className="cursor-pointer bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 flex flex-col items-center hover:bg-white/20 transition shadow"
     >
       <img
-        src={spriteURL ?? image}
+        src={hasImageError ? FALLBACK_IMAGE : (spriteURL ?? image)}
         alt={name}
         className="w-20 h-20 object-contain mb-3"
         loading="lazy"
+        onError={() => setHasImageError(true)}
       />
 
       <p className="font-semibold text-center mb-2 capitalize">

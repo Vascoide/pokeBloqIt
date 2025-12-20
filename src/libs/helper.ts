@@ -54,3 +54,5 @@ export function formatPokemonName(name: string): string {
   }
   return name;
 }
+
+export const FALLBACK_IMAGE = "/pokeball.svg";

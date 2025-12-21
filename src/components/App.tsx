@@ -214,13 +214,11 @@ function MainApp() {
     }
 
     // 2️⃣ Try stored Pokédex data
-    const cached = await getPokemonData(pokemon.id);
-    if (cached) {
-      setKnownData((prev) => ({
-        ...prev,
-        [pokemon.id]: cached,
-      }));
-      setSelectedPokemon({ ...pokemon, data: cached });
+    if (knownData[pokemon.id]) {
+      setSelectedPokemon({
+        ...pokemon,
+        data: knownData[pokemon.id],
+      });
       return;
     }
 

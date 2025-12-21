@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import PokemonGrid from "./PokemonGrid";
 import PokemonTable from "./PokemonTable";
 import Pagination from "./Pagination";

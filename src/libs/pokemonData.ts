@@ -10,6 +10,15 @@ export async function getPokemonData(id: number): Promise<PokemonData | null> {
   return entry?.data ?? null;
 }
 
+export async function getAllPokemonData(): Promise<
+  Record<number, PokemonData>
+> {
+  const db = await getDB();
+  const entries = await db.getAll(POKE_DATA_STORE);
+
+  return Object.fromEntries(entries.map((entry) => [entry.id, entry.data]));
+}
+
 /* ------------------ Write ------------------ */
 
 export async function savePokemonData(

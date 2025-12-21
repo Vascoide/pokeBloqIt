@@ -8,7 +8,11 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { queueOfflineAction } from "../libs/offlineQueue";
-import { getPokemonData, savePokemonData } from "../libs/pokemonData";
+import {
+  getAllPokemonData,
+  getPokemonData,
+  savePokemonData,
+} from "../libs/pokemonData";
 import {
   fetchPokemon,
   usePokemon,
@@ -51,6 +55,24 @@ function MainApp() {
   const [knownData, setKnownData] = useState<
     Record<number, PokemonListItem["data"]>
   >({});
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getAllPokemonData()
+      .then((allData) => {
+        if (!cancelled) {
+          setKnownData(allData);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load cached Pokémon data", err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!selectedPokemon?.id || !pokemonData) return;

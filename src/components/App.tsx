@@ -8,11 +8,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { queueOfflineAction } from "../libs/offlineQueue";
-import {
-  getAllPokemonData,
-  getPokemonData,
-  savePokemonData,
-} from "../libs/pokemonData";
+import { getAllPokemonData, savePokemonData } from "../libs/pokemonData";
 import {
   fetchPokemon,
   usePokemon,

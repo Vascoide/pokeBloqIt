@@ -4,12 +4,6 @@ import type { PokemonData } from "../types/pokemon";
 
 /* ------------------ Read ------------------ */
 
-export async function getPokemonData(id: number): Promise<PokemonData | null> {
-  const db = await getDB();
-  const entry = await db.get(POKE_DATA_STORE, id);
-  return entry?.data ?? null;
-}
-
 export async function getAllPokemonData(): Promise<
   Record<number, PokemonData>
 > {

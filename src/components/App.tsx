@@ -204,7 +204,7 @@ function MainApp() {
   }, [pokemonList, dex.dex, knownData]);
 
   /* ---------------- Actions ---------------- */
-  const handleOpen = async (pokemon: PokemonListItem | null) => {
+  const handleOpen = (pokemon: PokemonListItem | null) => {
     if (!pokemon) return;
 
     // 1️⃣ Already has data

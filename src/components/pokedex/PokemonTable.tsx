@@ -68,22 +68,25 @@ export default function PokemonTable({
                 <td className="py-2 px-3 capitalize font-medium">
                   {formatPokemonName(pokemon.name)}
                 </td>
-                <td className="py-2 px-3 flex gap-1">
-                  {pokemon.data?.types?.map((t) => {
-                    const typeName = t.type.name;
-                    const color = getTypeColor(typeName);
+                <td className="py-2 px-3 align-middle">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+                    {pokemon.data?.types?.map((t) => {
+                      const typeName = t.type.name;
+                      const color = getTypeColor(typeName);
 
-                    return (
-                      <span
-                        key={typeName}
-                        className="px-3 py-1 rounded-full text-sm capitalize text-black font-semibold"
-                        style={{ backgroundColor: color }}
-                      >
-                        {typeName}
-                      </span>
-                    );
-                  }) ?? "-"}
+                      return (
+                        <span
+                          key={typeName}
+                          className="px-3 py-1 rounded-full text-sm capitalize text-black font-semibold whitespace-nowrap"
+                          style={{ backgroundColor: color }}
+                        >
+                          {typeName}
+                        </span>
+                      );
+                    }) ?? "-"}
+                  </div>
                 </td>
+
                 <td className="py-2 px-3">
                   {pokemon.data?.height
                     ? formatHeight(pokemon.data.height)

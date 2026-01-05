@@ -22,6 +22,30 @@ interface ExportRow {
   note: string;
 }
 
+const CSV_HEADERS: (keyof ExportRow)[] = [
+  "id",
+  "name",
+  "height",
+  "weight",
+  "hp",
+  "attack",
+  "defense",
+  "specialAttack",
+  "specialDefense",
+  "speed",
+  "types",
+  "caughtAt",
+  "note",
+];
+
+type CSVValue = string | number;
+
+const csvEscape = (value: CSVValue): string => {
+  const str = value.toString();
+  const safe = /^[=+\-@]/.test(str) ? `'${str}` : str;
+  return `"${safe.replace(/"/g, '""')}"`;
+};
+
 export default function ExportButtons({ pokedex }: ExportButtonsProps) {
   const exportCSV = () => {
     const rows: ExportRow[] = pokedex
@@ -29,20 +53,21 @@ export default function ExportButtons({ pokedex }: ExportButtonsProps) {
       .map((pk) => {
         const stats = pk.data?.stats ?? [];
 
-        const getStat = (name: string): number | "" =>
-          stats.find((s) => s.stat.name === name)?.base_stat ?? "";
+        const statMap = Object.fromEntries(
+          stats.map((s) => [s.stat.name, s.base_stat])
+        );
 
         return {
           id: pk.id,
           name: capitalize(pk.name),
           height: pk.data?.height ?? "",
           weight: pk.data?.weight ?? "",
-          hp: getStat("hp"),
-          attack: getStat("attack"),
-          defense: getStat("defense"),
-          specialAttack: getStat("special-attack"),
-          specialDefense: getStat("special-defense"),
-          speed: getStat("speed"),
+          hp: statMap["hp"] ?? "",
+          attack: statMap["attack"] ?? "",
+          defense: statMap["defense"] ?? "",
+          specialAttack: statMap["special-attack"] ?? "",
+          specialDefense: statMap["special-defense"] ?? "",
+          speed: statMap["speed"] ?? "",
           types: pk.data?.types?.map((t) => t.type.name).join(", ") ?? "",
           caughtAt: pk.caughtAt ? new Date(pk.caughtAt).toISOString() : "",
           note: pk.note ?? "",
@@ -54,18 +79,16 @@ export default function ExportButtons({ pokedex }: ExportButtonsProps) {
       return;
     }
 
-    const headers = Object.keys(rows[0]) as (keyof ExportRow)[];
+    const lines = [];
+    lines.push(CSV_HEADERS.join(","));
 
-    const csv = [
-      headers.join(","),
-      ...rows.map((row) =>
-        headers
-          .map((key) => `"${String(row[key]).replace(/"/g, '""')}"`)
-          .join(",")
-      ),
-    ].join("\n");
+    for (const row of rows) {
+      lines.push(CSV_HEADERS.map((k) => csvEscape(row[k])).join(","));
+    }
 
-    const blob = new Blob([csv], { type: "text/csv" });
+    const csv = lines.join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");

@@ -54,10 +54,6 @@ npm run dev
 http://localhost:5173
 ```
 
-## 6️⃣ Project structure (high-level)
-
-This helps people understand your mental model.
-
 ```md
 ## Project Structure
 
